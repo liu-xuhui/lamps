@@ -48,3 +48,6 @@ results/*
 
 data/simulation/*
 data/riboflavin/*
+
+!src/python/adamp/third_party/
+!src/python/adamp/third_party/stability_selection/**
