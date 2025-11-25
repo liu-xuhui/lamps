@@ -1,0 +1,50 @@
+# ------------------------
+# Python virtual environments
+# ------------------------
+.venv/
+venv/
+env/
+ENV/
+*.egg-info/
+
+# Do NOT ignore our env/ folder that contains requirements & setup scripts
+!env/requirements.txt
+!env/setup_venv.sh
+!env/R_packages.R
+
+# ------------------------
+# Python cache and temp files
+# ------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pkl
+*.pickle
+
+# ------------------------
+# R cache files
+# ------------------------
+.Rhistory
+.RData
+.Rproj.user/
+
+# ------------------------
+# Jupyter Notebook
+# ------------------------
+.ipynb_checkpoints/
+
+# ------------------------
+# Editor / system files
+# ------------------------
+.DS_Store
+Thumbs.db
+
+# ------------------------
+# Results and simulation output
+# ------------------------
+results/*
+!results/README.md
+
+data/simulation/*
+data/riboflavin/*
