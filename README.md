@@ -1,106 +1,141 @@
+
 # Environment Setup Instructions
 
-This document describes how to create a reproducible Python environment for running the AdaMP simulations and experiments on Windows (Git Bash) and macOS/Linux. All required Python dependencies are listed in `env/requirements.txt`, and the environment can be created automatically using the provided script `env/setup_venv.sh`.
+This document describes how to create a reproducible Python environment for running the AdaMP simulations and generating the linear and nonlinear plots. All required Python dependencies are listed in `env/requirements.txt`, and the environment can be created automatically using the provided script `env/setup_venv.sh`.
 
-A copy of the required third-party package `stability_selection` is included inside the repository under
-`src/python/adamp/third_party/stability_selection/`.
+A copy of the required third-party package `stability_selection` is included inside the repository under  
+`src/python/adamp/third_party/stability_selection/`.  
 It is imported locally and does not require installation through pip.
 
-No specific Python version is strictly required, but compatibility has been tested on Python versions 3.10 through 3.12.
+No specific Python version is strictly required, but compatibility has been tested on Python versions 3.10 through 3.13.
 
 ---
 
-## 1. Windows (Git Bash) Setup
+## Environment Setup (Windows Git Bash and macOS/Linux)
 
-**Important:** All commands must be executed in **Git Bash**, not PowerShell or CMD.
+The setup procedure is identical for Windows (Git Bash) and macOS/Linux. Users only need to ensure they are running commands either in **Git Bash** (Windows) or a **standard terminal** (macOS/Linux).
 
 ### Step 1. Clone the repository
 
-```bash
+```
+
 git clone <repository_url>
 cd <repository_directory>
+
 ```
 
 ### Step 2. Create a virtual environment
 
-
-
-```bash
-python -m venv .venv
 ```
 
+python -m venv .venv
+
+```
+
+On macOS/Linux, if needed:
+
+```
+
+python3 -m venv .venv
+
+```
 
 ### Step 3. Run the setup script
 
-```bash
-./env/setup_venv.sh
 ```
 
-This script initializes the virtual environment, upgrades pip, and installs all required packages listed in `requirements.txt`.
+./env/setup_venv.sh
+
+```
+
+This script initializes the virtual environment, upgrades pip, and installs all required packages listed in `env/requirements.txt`.
 
 ### Step 4. Activate the environment in future sessions
 
-```bash
+Windows (Git Bash):
+
+```
+
 source .venv/Scripts/activate
+
 ```
 
----
+macOS/Linux:
 
-## 2. macOS / Linux Setup
-
-### Step 1. Clone the repository
-
-```bash
-git clone <repository_url>
-cd <repository_directory>
 ```
 
-### Step 2. Create and activate a virtual environment
-
-```bash
-python3 -m venv .venv
 source .venv/bin/activate
+
 ```
-
-### Step 3. Install dependencies
-
-You may use the automated script:
-
-```bash
-bash env/setup_venv.sh
-```
-
-or manually install:
-
-```bash
-pip install --upgrade pip
-pip install -r env/requirements.txt
-```
-
-The included third-party code is imported without additional installation steps.
 
 ---
 
-## 3. Running Experiments
+## Plot Generation
 
-After activating the virtual environment, individual experiment scripts can be executed directly. For example:
+Two Python plotting utilities are provided under `src/python_plotting/`:
 
-```bash
-python experiments/linear/run_linear_oracle_perm.py
-python experiments/nonlinear/additive/oracle_perm_mars/run_hsic_knockoff.py
-python experiments/riboflavin/run_riboflavin_experiment.py
+- `make_linear_plots.py`
+- `make_nonlinear_plots.py`
+
+These scripts read processed experiment results saved under the `results/` directory and generate publication-ready figures.
+
+### Linear Plots
+
+Linear plots can be generated directly:
+
 ```
 
-All generated results will be written to the `results/` directory following the repository’s directory structure.
+python src/python_plotting/make_linear_plots.py
+
+```
+
+Output figures will be saved under:
+
+```
+
+results/linear/
+
+```
+
+### Nonlinear Plots
+
+Nonlinear plots require the user to specify four parameters inside `make_nonlinear_plots.py`:
+
+```
+
+eval_metd   = "f1_score"      
+# one of: "f1_score", "precision", "recall"
+oracle      = False           
+# currently MUST be False (oracle=True data not yet provided)
+permute     = False           # True or False
+basemodel   = "marsbase"      # "marsbase" or "spambase"
+
+```
+
+After setting these parameters, run:
+
+```
+
+python src/python_plotting/make_nonlinear_plots.py
+
+```
+
+Plots will be written to:
+
+```
+
+results/nonlinear/additive/
+
+```
+
+Non-additive plots will be supported in a future update.
 
 ---
 
-## 4. Notes on Reproducibility
+## Notes on Reproducibility
 
-* The repository includes all required code, including external components placed under `src/python/adamp/third_party/`.
-* The `.venv/` directory is intentionally excluded from version control. Users should create the environment following the instructions above.
-* Data directories (`data/`) and simulation outputs (`results/`) are also excluded from version control, except for documentation files.
-
----
-
+* All required Python code, including third-party components, is stored within the repository under `src/python/`.
+* The `.venv/` directory is intentionally excluded from version control. Each user must create their own environment.
+* Raw data under `data/` and generated results under `results/` are excluded from version control (except documentation placeholders).
+* Plotting scripts require that experiment output files already exist in the appropriate directory structure.
 
