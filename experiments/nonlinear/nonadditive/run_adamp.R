@@ -377,6 +377,8 @@ N1 <- 50
 
 max_iter <- 5
 
+perm <- 1
+
 func_name <- "mr"
 fit_funcs <- list(
   linear = linear_reg, mr = mars_reg
@@ -396,7 +398,7 @@ corr_list <- c(0, 0.5, 0.9)
 oracle_list <- c(0, 1)
 
 # result <- data.frame(snr = snr_list, f1 = rep(NA, length(snr_list)))
-out_dir <- "temp_results/nonlinear/additive"
+out_dir <- "temp_results/nonlinear/nonadditive"
 
 sim <- SimuFriedmanAdditive(N, M, N1, snr = 5, seed = 42, corr = corr)
 # useless

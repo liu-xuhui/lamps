@@ -4,7 +4,6 @@ from tqdm import tqdm
 import sys
 from pathlib import Path
 
-# go from data/simulation/generate_nonlinear_data.py to repo root
 project_root = Path(__file__).resolve().parents[4]
 src_python = project_root / "src" / "python"
 sys.path.insert(0, str(src_python))
@@ -16,6 +15,7 @@ num_signals = 10
 snr_list = [0.5, 1, 2, 5]
 corr_list = [0, 0.5, 0.9]
 permute = 0
+oracle = 1 # oracle can only be 1
 
 total = len(snr_list) * num_simus * len(corr_list)
 
@@ -33,7 +33,7 @@ with tqdm(total=total, desc="Running simulations") as pbar:
                 selected = HSIC_select(X, Y, num_signals)
                 out_df = pd.DataFrame()
                 out_df["var"] = selected
-                out_df.to_csv(f"temp_results/nonlinear/additive/hsic_selected_corr{corr}_snr{snr}_permute{permute}_rep{rep}.csv", index=False)
+                out_df.to_csv(f"temp_results/nonlinear/additive/hsic_selected_corr{corr}_snr{snr}_permute{permute}_oracle{oracle}_rep{rep}.csv", index=False)
 
                 
                 pbar.update(1)

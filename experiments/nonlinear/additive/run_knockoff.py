@@ -15,6 +15,7 @@ num_simus = 10
 snr_list = [0.5, 1, 2, 5]
 corr_list = [0, 0.5, 0.9]
 permute = 0
+oracle = 0 # oracle can only be 0
 
 total = len(snr_list) * num_simus * len(corr_list)
 
@@ -32,17 +33,17 @@ with tqdm(total=total, desc="Running simulations") as pbar:
                 selected = Konckoff_select(X, Y, 0.3)
                 out_df = pd.DataFrame()
                 out_df["var"] = selected
-                out_df.to_csv(f"temp_results/nonlinear/additive/knockoff03_selected_corr{corr}_snr{snr}_permute{permute}_rep{rep}.csv", index=False)
+                out_df.to_csv(f"temp_results/nonlinear/additive/knockoff03_selected_corr{corr}_snr{snr}_permute{permute}_oracle{oracle}_rep{rep}.csv", index=False)
 
                 selected = Konckoff_select(X, Y, 0.2)
                 out_df = pd.DataFrame()
                 out_df["var"] = selected
-                out_df.to_csv(f"temp_results/nonlinear/additive/knockoff02_selected_corr{corr}_snr{snr}_permute{permute}_rep{rep}.csv", index=False)
+                out_df.to_csv(f"temp_results/nonlinear/additive/knockoff02_selected_corr{corr}_snr{snr}_permute{permute}_oracle{oracle}_rep{rep}.csv", index=False)
 
                 selected = Konckoff_select(X, Y, 0.1)
                 out_df = pd.DataFrame()
                 out_df["var"] = selected
-                out_df.to_csv(f"temp_results/nonlinear/additive/knockoff01_selected_corr{corr}_snr{snr}_permute{permute}_rep{rep}.csv", index=False)
+                out_df.to_csv(f"temp_results/nonlinear/additive/knockoff01_selected_corr{corr}_snr{snr}_permute{permute}_oracle{oracle}_rep{rep}.csv", index=False)
 
                 pbar.update(1)
             
