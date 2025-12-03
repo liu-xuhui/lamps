@@ -46,7 +46,7 @@ Thumbs.db
 results/*
 !results/README.md
 
-adamp/temp_results/*
+temp_results/*
 
 data/simulation/*
 data/riboflavin/*
