@@ -46,8 +46,13 @@ Thumbs.db
 results/*
 !results/README.md
 
+adamp/temp_results/*
+
 data/simulation/*
 data/riboflavin/*
+
+!data/simulation/generate_nonlinear_additive_data.py
+!data/simulation/generate_nonlinear_nonadditive_data.py
 
 !src/python/adamp/third_party/
 !src/python/adamp/third_party/stability_selection/**

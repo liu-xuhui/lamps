@@ -3,11 +3,13 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+eval_metd    = "f1_score" # f1_score or precision or recall
+oracle = False
+permute = False
+basemodel = "marsbase" # "marsbase" or "spambase"
+
 corr_list    = [0, 0.5, 0.9]
-eval_metd    = "recall"
-oracle = True
-permute = True
-basemodel = "marsbase" # or "spambase"
 
 metric_name_map = {
     "f1_score": "F1 Score",
@@ -17,14 +19,11 @@ metric_name_map = {
 
 y_label = f"Feature-Selection {metric_name_map.get(eval_metd, eval_metd.title())}"
 
-oracle_str  = "Oracle"    if oracle  else "nonoracle"
-permute_str = "Permute"   if permute else "nonpermute"
+oracle_str  = "oracle"    if oracle  else "nonoracle"
+permute_str = "permute"   if permute else "nonpermute"
 
-title_label = (
-    f"Nonlinear NonAdditive — Feature-Selection "
-    f"{metric_name_map.get(eval_metd, eval_metd.title())} vs. SNR "
-    f"{oracle_str} {permute_str}"
-)
+title_label = f"Nonlinear Nonadditive — Feature-Selection {metric_name_map.get(eval_metd, eval_metd.title())} vs. Interaction SNR {oracle_str} {permute_str}"
+
 
 
 snr_list        = [4, 6, 8, 10]
@@ -34,7 +33,7 @@ delta           = 0.8
 number_signals  = 10
 M               = 50
 
-with open(f"result/nonlinear/nonadditive/nonlinear_nonadditive_{oracle_str}_{permute_str}_result_dict.pkl", "rb") as f:
+with open(f"results/nonlinear/nonadditive/nonlinear_nonadditive_{oracle_str}_{permute_str}_result_dict.pkl", "rb") as f:
     result_dict = pickle.load(f)
 
 def compute_f1_score(selected_features, total_features=50, signal_features=list(range(10))):
@@ -103,7 +102,7 @@ if oracle:
     legend_labels  = None
 
     for j, rho in enumerate(corr_list):
-        save_dir = "result/nonlinear/nonadditive"
+        save_dir = "results/nonlinear/nonadditive"
 
         com_method_result_dict = result_dict[rho]
 
@@ -137,11 +136,18 @@ if oracle:
             ses   = [np.std(dct[s], ddof=1)/np.sqrt(len(dct[s])) if len(dct[s])>1 else 0.0 for s in snr_list]
             return np.array(means), np.array(ses)
 
-        method_to_data = {
-            "AdaMP":           mean_se(f1_AdaMP),
-            "HSIC Lasso":      mean_se(f1_HSIC),
-            "spAM":            mean_se(f1_SPAM),
-        }
+        if basemodel == "marsbase":
+            method_to_data = {
+                "AdaMP (marsbase)":           mean_se(f1_AdaMP),
+                "HSIC Lasso":      mean_se(f1_HSIC),
+                "spAM":            mean_se(f1_SPAM),
+            }
+        else:
+            method_to_data = {
+                "AdaMP (spambase)":           mean_se(f1_AdaMP),
+                "HSIC Lasso":      mean_se(f1_HSIC),
+                "spAM":            mean_se(f1_SPAM),
+            }
 
         ax = axes[j]
         handles = []
@@ -162,7 +168,7 @@ if oracle:
                 labels.append(name)
 
         # axes cosmetics
-        ax.set_xlabel("Interaction SNR")
+        ax.set_xlabel("SNR")
         if j == 0:
             ax.set_ylabel(y_label)
         ax.grid(True, alpha=0.25, linewidth=0.8)
@@ -187,8 +193,8 @@ if oracle:
     fig.subplots_adjust(bottom=0.18, top=0.85, wspace=0.1)
 
     # Save the combined figure once; you can also save per-setting inside the loop if desired
-    outdir = "result/nonlinear/nonadditive"
-    figpath = os.path.join(outdir, f"{eval_metd}_nonadditive_{oracle_str}_{permute_str}.png")
+    outdir = "results/nonlinear/additive"
+    figpath = os.path.join(outdir, f"{eval_metd}_additive_{oracle_str}_{permute_str}_{basemodel}.png")
     fig.savefig(figpath, bbox_inches="tight")
     plt.show()
 else:
@@ -231,7 +237,7 @@ else:
     legend_labels  = None
 
     for j, rho in enumerate(corr_list):
-        save_dir = "result/nonlinear/nonadditive"
+        save_dir = "results/nonlinear/nonadditive"
 
         com_method_result_dict = result_dict[rho]
 
@@ -275,14 +281,24 @@ else:
             ses   = [np.std(dct[s], ddof=1)/np.sqrt(len(dct[s])) if len(dct[s])>1 else 0.0 for s in snr_list]
             return np.array(means), np.array(ses)
 
-        method_to_data = {
-            "AdaMP":           mean_se(f1_AdaMP),
-            "Knockoffs_fdr01": mean_se(f1_KF01),
-            "Knockoffs_fdr02": mean_se(f1_KF02),
-            "Knockoffs_fdr03": mean_se(f1_KF03),
-            "spAM":            mean_se(f1_SPAM),
-            "MARS":            mean_se(f1_MARS),
-        }
+        if basemodel == "marsbase":
+            method_to_data = {
+                "AdaMP (marsbase)":           mean_se(f1_AdaMP),
+                "Knockoffs_fdr01": mean_se(f1_KF01),
+                "Knockoffs_fdr02": mean_se(f1_KF02),
+                "Knockoffs_fdr03": mean_se(f1_KF03),
+                "spAM":            mean_se(f1_SPAM),
+                "MARS":            mean_se(f1_MARS),
+            }
+        else:
+            method_to_data = {
+                "AdaMP (spambase)":           mean_se(f1_AdaMP),
+                "Knockoffs_fdr01": mean_se(f1_KF01),
+                "Knockoffs_fdr02": mean_se(f1_KF02),
+                "Knockoffs_fdr03": mean_se(f1_KF03),
+                "spAM":            mean_se(f1_SPAM),
+                "MARS":            mean_se(f1_MARS),
+            }
 
         ax = axes[j]
         handles = []
@@ -328,8 +344,8 @@ else:
     fig.subplots_adjust(bottom=0.18, top=0.85, wspace=0.1)
 
     # Save the combined figure once; you can also save per-setting inside the loop if desired
-    outdir = "result/nonlinear/nonadditive"
-    figpath = os.path.join(outdir, f"{eval_metd}_nonadditive_{oracle_str}_{permute_str}.png")
+    outdir = "results/nonlinear/nonadditive"
+    figpath = os.path.join(outdir, f"{eval_metd}_nonadditive_{oracle_str}_{permute_str}_{basemodel}.png")
     fig.savefig(figpath, bbox_inches="tight")
     plt.show()
 
