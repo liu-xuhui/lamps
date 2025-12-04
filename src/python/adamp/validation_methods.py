@@ -6,14 +6,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LassoCV
 from math import comb
 
-#from hsic_lasso.HSIC_feature_selection import HSIC_Lasso
 from pyHSICLasso import HSICLasso
 from knockpy import knockoff_filter
-import seaborn as sns
-from sklearn.kernel_ridge import KernelRidge
-from sklearn.linear_model import LinearRegression
-from sklearn.tree import DecisionTreeRegressor
-
 
 import sys
 from pathlib import Path
