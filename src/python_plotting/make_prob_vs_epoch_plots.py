@@ -15,10 +15,6 @@ arr_probs_list = [res[i]["prob_F"] for i in range(3)]
 
 plot_kind = "delta"   # or "prob"
 
-# Example placeholders (replace with your real arrays)
-# arr_Deltas_list = [arr_epoch1, arr_epoch2, arr_epoch3]
-# arr_probs_list  = [probs_epoch1, probs_epoch2, probs_epoch3]
-
 if plot_kind == "delta":
     arr_list   = arr_Deltas_list
     x_label    = r"Feature importance $\Delta_j$"
