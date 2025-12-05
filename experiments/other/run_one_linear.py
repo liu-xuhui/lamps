@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+import pickle
 
 # Add src/python to PYTHONPATH
 ROOT = Path(__file__).resolve().parents[2]
@@ -11,8 +12,6 @@ from adamp.simulation_functions import SimuLinear
 
 
 N = 200; M = 500; N1 = 50;
-# N1 is the size of test set
-# M = 50, M = 300
 
 """
 MP setting
@@ -27,8 +26,12 @@ fit_func=fit_funcs[func_name]
 n_ratio= 0.4
 m_ratio= 0.12
 delta = 0.8
-K = [3000 for i in range(max_iter)]
-# K = [[3000]]
-# snr_lst = [0.3, 1, 3, 10]
+K = [5787 for i in range(max_iter)]
 snr = 1
 number_signals = 10
+
+X, Y, X1, Y1 = SimuLinear(N, M, N1, k=10, rho=0.9, snr=1, seed=110)
+res = indept_weight_sample_epochtuned(X, Y, X1, Y1, n_ratio, m_ratio, K, fit_func, delta, max_iter, plot=False)
+
+with open("results/other/one_linear_corr09_experiment_res.pkl", "wb") as f:
+    pickle.dump(res, f)

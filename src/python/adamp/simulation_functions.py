@@ -114,3 +114,43 @@ def SimuFriedmanNonAdditive(N, M, N1, snr=1, seed=110, corr = 0.9, interaction_s
 
     return [X, Y, X1, Y1]
 
+
+def SimuLinear(N, M, N1, k=10, rho=0.9, snr=1, seed=110):
+    """
+    Simulate a linear model where stability selection may fail due to strong correlation among features.
+
+    Parameters:
+    N: int - Number of training samples
+    M: int - Number of features
+    N1: int - Number of test samples
+    k: int - Number of informative features (located at the start)
+    rho: float - Correlation coefficient between features
+    seed: int - Random seed for reproducibility
+
+    Returns:
+    X: Training features (N x M)
+    Y: Training responses (N,)
+    X1: Test features (N1 x M)
+    Y1: Test responses (N1,)
+    """
+    b = np.sqrt(snr)
+
+    rng = np.random.default_rng(seed)
+
+    # Generate Toeplitz covariance matrix
+    cov = rho ** np.abs(np.subtract.outer(np.arange(M), np.arange(M)))
+
+    # Training data
+    X = rng.multivariate_normal(np.zeros(M), cov, size=N)
+
+    beta = np.zeros(M)
+
+    beta[:k] = rng.choice([-1, 1], size=k) * (b + rng.uniform(0, 1, size=k))  # First k features are signals
+
+    Y = X @ beta + rng.normal(scale=1, size=N)  # Add noise to simulate low SNR
+
+    # Test data
+    X1 = rng.multivariate_normal(np.zeros(M), cov, size=N1)
+    Y1 = X1 @ beta + rng.normal(scale=1, size=N1)
+
+    return [X, Y, X1, Y1]
