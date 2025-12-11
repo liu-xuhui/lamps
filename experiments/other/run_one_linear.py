@@ -30,8 +30,8 @@ K = [5787 for i in range(max_iter)]
 snr = 1
 number_signals = 10
 
-X, Y, X1, Y1 = SimuLinear(N, M, N1, k=10, rho=0.9, snr=1, seed=110)
+X, Y, X1, Y1 = SimuLinear(N, M, N1, k=10, rho=0, snr=1, seed=110)
 res = indept_weight_sample_epochtuned(X, Y, X1, Y1, n_ratio, m_ratio, K, fit_func, delta, max_iter, plot=False)
 
-with open("results/other/one_linear_corr09_experiment_res.pkl", "wb") as f:
+with open("results/other/one_linear_corr00_experiment_res.pkl", "wb") as f:
     pickle.dump(res, f)

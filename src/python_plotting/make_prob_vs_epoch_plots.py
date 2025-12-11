@@ -13,16 +13,16 @@ arr_Deltas_list = [res[i]["Delta"] for i in range(3)]
 arr_probs_list = [res[i]["prob_F"] for i in range(3)]
 
 
-plot_kind = "delta"   # or "prob"
+plot_kind = "prob"   # "delta" or "prob"
 
 if plot_kind == "delta":
     arr_list   = arr_Deltas_list
     x_label    = r"Feature importance $\Delta_j$"
-    out_fname  = "results/other/feature_importance_hist_3epochs.png"
+    out_fname  = "results/other/feature_importance_hist09_3epochs.png"
 elif plot_kind == "prob":
     arr_list   = arr_probs_list
     x_label    = r"Sampling probability $q_j$"
-    out_fname  = "results/other/sampling_probability_hist_3epochs.png"
+    out_fname  = "results/other/sampling_probability_hist09_3epochs.png"
 else:
     raise ValueError("plot_kind must be 'delta' or 'prob'.")
 
@@ -88,7 +88,7 @@ for idx, arr in enumerate(arr_list):
     ax.set_title(epoch_titles[idx])
     ax.set_xlabel(x_label)
     if idx == 0:
-        ax.set_ylabel("Density")
+        ax.set_ylabel("Frequency")
 
     # Grid & spines
     ax.grid(axis="y", alpha=0.25, linewidth=0.7)

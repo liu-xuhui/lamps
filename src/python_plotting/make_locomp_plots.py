@@ -89,7 +89,7 @@ ax.hist(
 
 # Labels & title
 ax.set_xlabel(x_label)
-ax.set_ylabel("Density")
+ax.set_ylabel("Frequency")
 ax.set_title("LOCO-MP Delta")
 
 # Grid & spines
