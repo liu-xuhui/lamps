@@ -18,7 +18,7 @@ arr_probs_list  = []
 # USER OPTIONS
 # -------------------------------------------------
 plot_kind = "delta"    # "delta" only
-epoch_idx = 0         # choose which one: 0, 1, or 2
+epoch_idx = 0
 
 if plot_kind == "delta":
     arr = arr_Deltas_list[epoch_idx]
@@ -46,7 +46,7 @@ plt.rcParams.update({
 })
 
 # -------------------------------------------------
-# Histogram bins (based on this single epoch)
+# Histogram bins
 # -------------------------------------------------
 bins = np.histogram_bin_edges(arr, bins="auto")
 
@@ -55,52 +55,70 @@ signal_color = "#D7191C"   # red
 noise_color  = "#2C7BB6"   # blue
 
 # -------------------------------------------------
-# Create figure
+# Create figure (TWO AXES)
 # -------------------------------------------------
-fig, ax = plt.subplots(figsize=(5.8, 4.0))
+fig, ax_noise = plt.subplots(figsize=(5.8, 4.0))
+ax_signal = ax_noise.twinx()
 
 # Split into signal vs noise
 signal_vals = arr[:num_signals]
 noise_vals  = arr[num_signals:]
 
-# Signal histogram
-ax.hist(
-    signal_vals,
-    bins=bins,
-    density=True,
-    alpha=0.75,
-    color=signal_color,
-    edgecolor="black",
-    linewidth=0.6,
-    label=r"Signal",
-)
-
-# Noise histogram
-ax.hist(
+# -------------------------------------------------
+# Noise histogram (LEFT axis)
+# -------------------------------------------------
+ax_noise.hist(
     noise_vals,
     bins=bins,
-    density=True,
+    density=False,
     alpha=0.45,
     color=noise_color,
     edgecolor="black",
     linewidth=0.6,
-    label=r"Noise",
+    label="Noise",
 )
 
+# -------------------------------------------------
+# Signal histogram (RIGHT axis)
+# -------------------------------------------------
+ax_signal.hist(
+    signal_vals,
+    bins=bins,
+    density=False,
+    alpha=0.80,
+    color=signal_color,
+    edgecolor="black",
+    linewidth=0.8,
+    label="Signal",
+)
+
+# -------------------------------------------------
 # Labels & title
-ax.set_xlabel(x_label)
-ax.set_ylabel("Frequency")
-ax.set_title("LOCO-MP Delta")
+# -------------------------------------------------
+ax_noise.set_xlabel(x_label)
+ax_noise.set_ylabel("Noise frequency")
+ax_signal.set_ylabel("Signal frequency")
+ax_noise.set_title("LOCO-MP Delta")
 
+# -------------------------------------------------
 # Grid & spines
-ax.grid(axis="y", alpha=0.25, linewidth=0.7)
+# -------------------------------------------------
+ax_noise.grid(axis="y", alpha=0.25, linewidth=0.7)
 for spine in ["top", "right"]:
-    ax.spines[spine].set_visible(False)
+    ax_noise.spines[spine].set_visible(False)
+ax_signal.spines["top"].set_visible(False)
 
-# Legend
-ax.legend(frameon=False, loc="best")
+# -------------------------------------------------
+# Legend (combined)
+# -------------------------------------------------
+h1, l1 = ax_noise.get_legend_handles_labels()
+h2, l2 = ax_signal.get_legend_handles_labels()
+ax_noise.legend(h2 + h1, l2 + l1, frameon=False, loc="upper right")
 
+# -------------------------------------------------
 # Save & show
+# -------------------------------------------------
 fig.tight_layout()
 fig.savefig(out_fname, bbox_inches="tight")
 plt.show()
+
