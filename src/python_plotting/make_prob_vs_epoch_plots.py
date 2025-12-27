@@ -2,7 +2,13 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 
-with open("results/other/one_linear_corr00_experiment_res.pkl", "rb") as f:
+# TODO: Add corr as user input setting
+
+# User input
+corr = 0
+plot_kind = "prob"   # "delta" or "prob"
+
+with open(f"results/other/one_linear_corr{corr}_experiment_res.pkl", "rb") as f:
     res = pickle.load(f)
 
 M = 500
@@ -11,16 +17,15 @@ num_signals = 10
 arr_Deltas_list = [np.asarray(res[i]["Delta"], dtype=float).ravel() for i in range(3)]
 arr_probs_list  = [np.asarray(res[i]["prob_F"], dtype=float).ravel() for i in range(3)]
 
-plot_kind = "prob"   # "delta" or "prob"
 
 if plot_kind == "delta":
     arr_list   = arr_Deltas_list
     x_label    = r"Feature importance $\Delta_j$"
-    out_fname  = "results/other/feature_importance_hist00_3epochs.png"
+    out_fname  = f"results/other/feature_importance_hist{corr}_3epochs.png"
 elif plot_kind == "prob":
     arr_list   = arr_probs_list
     x_label    = r"Sampling probability $q_j$"
-    out_fname  = "results/other/sampling_probability_hist00_3epochs.png"
+    out_fname  = f"results/other/sampling_probability_hist{corr}_3epochs.png"
 else:
     raise ValueError("plot_kind must be 'delta' or 'prob'.")
 

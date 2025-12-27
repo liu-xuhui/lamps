@@ -3,9 +3,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # -------------------------------------------------
+# USER OPTIONS
+# -------------------------------------------------
+plot_kind = "delta"    # "delta" only
+epoch_idx = 0
+corr = 0.9
+
+# -------------------------------------------------
 # Load data
 # -------------------------------------------------
-with open("results/other/one_linear_corr09_locompreg_res.pkl", "rb") as f:
+with open(f"results/other/one_linear_corr{corr}_locompreg_res.pkl", "rb") as f:
     res = pickle.load(f)
 
 M = 500
@@ -14,22 +21,18 @@ num_signals = 10
 arr_Deltas_list = [res["Delta"]]
 arr_probs_list  = []
 
-# -------------------------------------------------
-# USER OPTIONS
-# -------------------------------------------------
-plot_kind = "delta"    # "delta" only
-epoch_idx = 0
 
 if plot_kind == "delta":
     arr = arr_Deltas_list[epoch_idx]
     x_label   = r"Feature importance $\Delta_j$"
-    out_fname = f"results/other/feature_importance_hist_locomp.png"
-elif plot_kind == "prob":
-    arr = arr_probs_list[epoch_idx]
-    x_label   = r"Sampling probability $q_j$"
-    out_fname = f"results/other/sampling_probability_hist_locomp.png"
+    out_fname = f"results/other/feature_importance_hist_corr{corr}_locomp.png"
 else:
-    raise ValueError("plot_kind must be 'delta' or 'prob'.")
+    raise ValueError("plot_kind must be 'delta'.")
+# elif plot_kind == "prob":
+#     arr = arr_probs_list[epoch_idx]
+#     x_label   = r"Sampling probability $q_j$"
+#     out_fname = f"results/other/sampling_probability_hist_corr{corr}_locomp.png"
+
 
 # -------------------------------------------------
 # Plot styling (publication standard)

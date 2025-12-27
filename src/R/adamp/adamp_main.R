@@ -215,7 +215,7 @@ indept_weight_sample_epochtuned <- function(X, Y, X1, Y1, n_ratio, m_ratio, K,
 
     # Update sampling probabilities for features
     Delta <- cur$Delta
-    Delta_shift <- Delta - min(Delta)
+    Delta_shift <- Delta - min(Delta) + 0.001/M
     weight_sort <- sort(Delta_shift, decreasing = TRUE)
 
     total_sum <- sum(weight_sort)
