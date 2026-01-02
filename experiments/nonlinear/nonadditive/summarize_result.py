@@ -30,6 +30,8 @@ for permute in [0,1]:
                     temp_result_dict = pickle.load(f)
                     com_method_result_dict["adamspam"] = temp_result_dict[corr]["adaspam"]
             for snr in snr_list:
+                com_method_result_dict["adammars"][snr] = {}
+                com_method_result_dict["adamspam"][snr] = {}
                 com_method_result_dict["spam"][snr] = {}
                 com_method_result_dict["mars"][snr] = {}
                 com_method_result_dict["kf1"][snr] = {}
@@ -37,6 +39,22 @@ for permute in [0,1]:
                 com_method_result_dict["kf3"][snr] = {}
                 com_method_result_dict["hsic"][snr] = {}
                 for rep in range(num_simus):
+                    file_path = os.path.join(folder, f"adammars_selected_corr{corr}_snr{snr}_permute{permute}_oracle{oracle}_rep{rep}.csv")
+                    if os.path.exists(file_path):
+                        df = pd.read_csv(file_path)
+                        vars_list = df["var"].dropna().astype(int).tolist() if "var" in df.columns else []
+                    else:
+                        vars_list = []
+                    com_method_result_dict["adammars"][snr][rep] = vars_list
+
+                    file_path = os.path.join(folder, f"adamspam_selected_corr{corr}_snr{snr}_permute{permute}_oracle{oracle}_rep{rep}.csv")
+                    if os.path.exists(file_path):
+                        df = pd.read_csv(file_path)
+                        vars_list = df["var"].dropna().astype(int).tolist() if "var" in df.columns else []
+                    else:
+                        vars_list = []
+                    com_method_result_dict["adamspam"][snr][rep] = vars_list
+                    
                     file_path = os.path.join(folder, f"spam_selected_corr{corr}_snr{snr}_permute{permute}_oracle{oracle}_rep{rep}.csv")
                     if os.path.exists(file_path):
                         df = pd.read_csv(file_path)
@@ -87,5 +105,5 @@ for permute in [0,1]:
 
             result_dict[corr] = com_method_result_dict
 
-        with open(f"results/nonlinear/additive/nonlinear_nonadditive_oracle{oracle}_permute{permute}_result_dict.pkl", "wb") as f:
+        with open(f"results/nonlinear/nonadditive/nonlinear_nonadditive_oracle{oracle}_permute{permute}_result_dict.pkl", "wb") as f:
             pickle.dump(result_dict, f)

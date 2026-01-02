@@ -5,10 +5,10 @@ import matplotlib.pyplot as plt
 
 
 eval_metd    = "f1_score"  # f1_score or precision or recall
-oracle       = 0
+oracle       = 1
 permute      = 1
 # "marsbase", "spambase", or "both"
-basemodel    = "marsbase"
+basemodel    = "both"
 
 corr_list    = [0, 0.5, 0.9]
 

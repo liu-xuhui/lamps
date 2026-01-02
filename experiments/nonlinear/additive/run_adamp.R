@@ -20,7 +20,7 @@ N1 <- 50
 
 max_iter <- 5
 
-permute <- 0L   # use the same name everywhere
+permute <- 1L   # use the same name everywhere
 
 func_name <- "sp"
 fit_funcs <- list(
