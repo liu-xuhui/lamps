@@ -70,65 +70,155 @@ source .venv/bin/activate
 
 ---
 
-## Plot Generation
+## Running Experiments and Generating Plots
 
-Two Python plotting utilities are provided under `src/python_plotting/`:
+This repository contains code for running **linear** and **nonlinear** feature-selection experiments and reproducing all figures in the paper.
 
-- `make_linear_plots.py`
-- `make_nonlinear_plots.py`
+All experiment scripts write **temporary simulation outputs** to the `temp_results/` directory. These are then aggregated into clean result files inside the `results/` directory, which are used for plotting.
 
-These scripts read processed experiment results saved under the `results/` directory and generate publication-ready figures.
+---
 
-### Linear Plots
+### 🔹 Nonlinear Experiments (Additive & Non-Additive)
 
-Linear plots can be generated directly:
+All nonlinear experiment scripts are located under:
 
 ```
+experiments/nonlinear/additive/
+experiments/nonlinear/nonadditive/
+```
 
+Each folder contains scripts for all competing methods (AdaMP, HSIC-Lasso, Knockoff, MARS, SPAM).
+
+#### Step 1 — Run the Simulation Scripts
+
+From either directory, run the desired experiment scripts. For example:
+
+```
+python experiments/nonlinear/additive/run_knockoff.py
+python experiments/nonlinear/additive/run_hsic.py
+Rscript experiments/nonlinear/additive/run_adamp.R
+...
+```
+
+Temporary results will be written to:
+
+```
+temp_results/
+```
+
+#### Step 2 — Summarize Results
+
+After simulations finish, summarize the temporary files:
+
+```
+python experiments/nonlinear/additive/summarize_result.py
+```
+
+or
+
+```
+python experiments/nonlinear/nonadditive/summarize_result.py
+```
+
+This will generate aggregated result files under:
+
+```
+results/nonlinear/
+```
+
+#### Step 3 — Generate Figures
+
+Once the results are available, the following plotting scripts reproduce the **paper-ready figures exactly**:
+
+```
+python src/python_plotting/make_nonlinear_additive_plots.py
+python src/python_plotting/make_nonlinear_nonadditive_plots.py
+python src/python_plotting/make_interaction_rate_plots.py
+```
+
+Figures will be saved automatically under the `results/` directory hierarchy.
+
+---
+
+### 🔹 Linear Experiments
+
+Linear simulation scripts are located under:
+
+```
+experiments/linear/
+```
+
+After running the linear simulations and summarizing results, publication-ready figures are generated via:
+
+```
 python src/python_plotting/make_linear_plots.py
-
 ```
 
-Output figures will be saved under:
+Output is written to:
 
 ```
-
 results/linear/
-
 ```
 
-### Nonlinear Plots
+---
 
-Nonlinear plots require the user to specify four parameters inside `make_nonlinear_plots.py`:
+### 🔹 Theory-Validation Experiments (Single-Seed Runs)
 
-```
-
-eval_metd   = "f1_score"      
-# one of: "f1_score", "precision", "recall"
-oracle      = False           
-# currently MUST be False (oracle=True data not yet provided)
-permute     = False           # True or False
-basemodel   = "marsbase"      # "marsbase" or "spambase"
+The following scripts in `experiments/other/` run **one fixed random seed** to produce the datasets and outputs used in the theory-validation figures:
 
 ```
-
-After setting these parameters, run:
-
+experiments/other/run_locomp_linear.py
+experiments/other/run_locosplit_linear.py
+experiments/other/run_one_linear.py
+experiments/other/run_one_nonlinear_additive.R
 ```
 
-python src/python_plotting/make_nonlinear_plots.py
+---
+
+## Plot Generation (Summary)
+
+Four plotting utilities are provided under:
 
 ```
-
-Plots will be written to:
-
+src/python_plotting/
 ```
 
-results/nonlinear/additive/
+These scripts read the processed results in `results/` and generate the figures used in the paper:
 
+* `make_linear_plots.py`
+* `make_nonlinear_additive_plots.py`
+* `make_nonlinear_nonadditive_plots.py`
+* `make_interaction_rate_plots.py`
+
+Before running the nonlinear plotting scripts, please set the following parameters inside the script:
+
+```python
+eval_metd    = "f1_score"     # "f1_score", "precision", or "recall"
+oracle       = 1              # 1 = oracle setting, 0 = non-oracle setting
+permute      = 1              # 1 = permuted correlation matrix, 0 = non-permuted
+basemodel    = "both"         # "marsbase", "spambase", or "both"
 ```
 
-Non-additive plots will be supported in a future update.
+For the figures reported in the paper, we **always use**
+>
+> ```
+> basemodel = "both"
+> ```
+>
+so that results from both base models are combined.
+
+After setting these options, run the desired plotting script, e.g.:
+
+```
+python src/python_plotting/make_nonlinear_additive_plots.py
+```
+
+Figures will be written automatically into the appropriate sub-directory under:
+
+```
+results/
+```
+                                    
 
 ---
 
