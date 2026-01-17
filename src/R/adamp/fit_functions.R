@@ -7,7 +7,7 @@ library(future.apply)
 
 linear_reg <- function(X, Y, X1) {
   # Fit linear regression without intercept
-  model <- lm(Y ~ . - 1, data = as.data.frame(X))  # "-1" removes the intercept
+  model <- lm(Y ~ . - 1, data = as.data.frame(X))  
   
   # Predict on new data
   preds <- as.numeric(predict(model, newdata = as.data.frame(X1)))
@@ -17,6 +17,12 @@ linear_reg <- function(X, Y, X1) {
 
 spam_reg <- function(X, Y, X1) {
   fit_best <- samQL(X, Y, lambda = c(0.01))
+  preds <- as.numeric(predict(fit_best, newdata = X1)$values[,1])
+  return(preds)
+}
+
+spam_reg_lambvar <- function(X, Y, X1) {
+  fit_best <- samQL(X, Y, lambda = c(0.0001))
   preds <- as.numeric(predict(fit_best, newdata = X1)$values[,1])
   return(preds)
 }

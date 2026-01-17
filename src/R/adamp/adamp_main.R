@@ -78,15 +78,15 @@ predictMP_indept_parallel <- function(X, Y, X1, n_ratio, m_ratio, B, fit_func,
   M  <- ncol(X)
   N1 <- nrow(X1)
 
-  # Stack once (same as your original)
+  # Stack once
   Xstack <- rbind(X, X1)
 
-  # Use multisession (works on Windows). On Linux/macOS, you can try multicore.
+  # Use multisession
   oplan <- plan()
   on.exit(plan(oplan), add = TRUE)
   plan(multisession, workers = workers)
 
-  # IMPORTANT: ensure reproducible RNG across parallel workers
+  # ensure reproducible RNG across parallel workers
   # (keeps distribution identical, though draw order differs)
   res <- future_lapply(
     X = seq_len(B),
@@ -257,8 +257,7 @@ indept_weight_sample_epochtuned <- function(X, Y, X1, Y1, n_ratio, m_ratio, K,
 
     kk <- kk + 1L
   }
-
-  # Select features (same rule: weight > 1/M)
+  # useless
   SelectedFeatures <- which(weight > 1 / M)
 
   # Return both the epoch records and selection for convenience

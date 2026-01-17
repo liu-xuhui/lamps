@@ -122,7 +122,7 @@ def indept_weight_sample_epochtuned(X,Y,X1,Y1,n_ratio,m_ratio,K,fit_func,delta,m
         ###########################
         ####### Update sampling probability
         ###########################
-        weight_tiuta = res[kk]['Delta'] - np.min(res[kk]['Delta'])
+        weight_tiuta = res[kk]['Delta'] - np.min(res[kk]['Delta']) + 0.001/M
 
         weight_sort = np.sort(weight_tiuta)[::-1]
 

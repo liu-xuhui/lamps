@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 # User input
 corr = 0
-plot_kind = "prob"   # "delta" or "prob"
+plot_kind = "delta"   # "delta" or "prob"
 
 with open(f"results/other/one_linear_corr{corr}_experiment_res.pkl", "rb") as f:
     res = pickle.load(f)

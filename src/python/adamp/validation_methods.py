@@ -5,6 +5,8 @@ from sklearn.linear_model import Lasso
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LassoCV
 from math import comb
+from scipy.special  import gammaln
+from sklearn.linear_model import ElasticNet
 
 from pyHSICLasso import HSICLasso
 from knockpy import knockoff_filter
@@ -43,7 +45,6 @@ def LassoStabilitySelection(X, y, verbose = 1, lambda_grid = None, threshold=0.6
 
   return selector.get_support(indices=True), selected_scores
 
-
 def compute_eBIC_select_features(X, y, lambda_grid=None, gamma=0.5):
     n, p = X.shape
     eBIC_scores = []
@@ -71,7 +72,12 @@ def compute_eBIC_select_features(X, y, lambda_grid=None, gamma=0.5):
             eBIC = np.inf
         else:
             bic = n * np.log(RSS / n) + S * np.log(n)
-            penalty = 2 * gamma * np.log(float(comb(p, S))) if S > 0 and S < p else 0
+            if S > 0 and S < p:
+                log_binom = gammaln(p + 1) - gammaln(S + 1) - gammaln(p - S + 1)
+                penalty = 2 * gamma * log_binom
+            else:
+                penalty = 0
+
             eBIC = bic + penalty
 
         eBIC_scores.append(eBIC)
@@ -84,7 +90,6 @@ def compute_eBIC_select_features(X, y, lambda_grid=None, gamma=0.5):
     coef_abs = np.abs(model.coef_)
 
     return selected_features.tolist(), coef_abs
-
 
 def compute_lassocv_select_features(X, y, lambda_grid=None, fold=5):
     scaler = StandardScaler()
@@ -106,6 +111,37 @@ def compute_lassocv_select_features(X, y, lambda_grid=None, fold=5):
 
     return selected_features.tolist(), coef_abs
 
+def compute_lasso_oracle_select_features(X, y, s_true=10, lambda_grid=None):
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    # Create lambda grid (alpha values)
+    lambda_max = (np.max(np.abs(X_scaled.T @ y)) / X.shape[0])
+    if lambda_grid is None:
+        lambda_grid = np.logspace(np.log10(0.01 * lambda_max), np.log10(lambda_max), 50)
+
+    best_model = None
+    closest_diff = float('inf')
+
+    for alpha in lambda_grid:
+        model = Lasso(alpha=alpha, fit_intercept=True, max_iter=1000)
+        model.fit(X_scaled, y)
+        nonzero_coef = np.sum(model.coef_ != 0)
+
+        if nonzero_coef == s_true:
+            selected_features = np.where(model.coef_ != 0)[0]
+            coef_abs = np.abs(model.coef_)
+            return selected_features.tolist(), coef_abs
+
+        # Track best match so far if exact match not found
+        diff = np.abs(nonzero_coef - s_true)
+        if diff < closest_diff:
+            closest_diff = diff
+            best_model = model
+
+    selected_features = np.where(best_model.coef_ != 0)[0]
+    coef_abs = np.abs(best_model.coef_)
+    return selected_features.tolist(), coef_abs
 
 def CPSS(X, y, alpha=0.01, B=50, tau=0.6, random_state=None):
     n, p = X.shape
@@ -123,7 +159,7 @@ def CPSS(X, y, alpha=0.01, B=50, tau=0.6, random_state=None):
         A2 = perm[half:half*2]  # ensure disjoint
 
         for A in [A1, A2]:
-            model = Lasso(alpha=alpha, max_iter=10000)
+            model = Lasso(alpha=alpha, max_iter=1000)
             model.fit(X_scaled[A], y[A])
             selected = np.where(model.coef_ != 0)[0]
             selection_counts[selected] += 1
@@ -136,6 +172,63 @@ def CPSS(X, y, alpha=0.01, B=50, tau=0.6, random_state=None):
 
     return selected_features, selection_freq
 
+def Elastic(X, y):
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    lambda_max = (np.max(np.abs(X_scaled.T @ y)) / X.shape[0])
+    
+    lambda_grid = np.logspace(np.log10(0.01 * lambda_max), np.log10(lambda_max), 25)
+
+    # LASSO with 5-fold CV
+    lasso_cv = LassoCV(cv=5, alphas=lambda_grid, max_iter=1000)
+    lasso_cv.fit(X_scaled, y)
+
+    # Results
+    best_alpha = lasso_cv.alpha_
+
+    elastic_net = ElasticNet(alpha=best_alpha, l1_ratio=0.5, max_iter=1000)
+    elastic_net.fit(X_scaled, y)
+
+    selected_features = np.where(elastic_net.coef_ != 0)[0]
+
+    coef_abs = np.abs(elastic_net.coef_)
+
+    return selected_features.tolist(), coef_abs
+
+def Elastic_oracle(X, y, s_true=10):
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    # Define lambda (alpha) grid and l1_ratio grid
+    lambda_max = (np.max(np.abs(X_scaled.T @ y)) / X.shape[0])
+    lambda_grid = np.logspace(np.log10(0.01 * lambda_max), np.log10(lambda_max), 25)
+    l1_ratio_grid = np.linspace(0.1, 1.0, 10)
+
+    best_model = None
+    closest_diff = float('inf')
+
+    for l1_ratio in l1_ratio_grid:
+        for alpha in lambda_grid:
+            model = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, max_iter=1000)
+            model.fit(X_scaled, y)
+            nonzero_coef = np.sum(model.coef_ != 0)
+
+            # Return immediately if match found
+            if nonzero_coef == s_true:
+                selected_features = np.where(model.coef_ != 0)[0]
+                coef_abs = np.abs(model.coef_)
+                return selected_features.tolist(), coef_abs
+
+            # Otherwise, store best match so far
+            diff = np.abs(nonzero_coef - s_true)
+            if diff < closest_diff:
+                closest_diff = diff
+                best_model = model
+
+    selected_features = np.where(best_model.coef_ != 0)[0]
+    coef_abs = np.abs(best_model.coef_)
+    return selected_features.tolist(), coef_abs
 
 def HSIC_select(X, y, topK):
     hsic_lasso = HSICLasso()
