@@ -120,7 +120,9 @@ MPRegFeatureScore_indept <- function(X, Y, X1, Y1, n_ratio, m_ratio, K, fit_func
 #   pred_obj <- predictMP_indept(X, Y, rbind(X, X1), n_ratio, m_ratio, K, fit_func,
 #                                prob_I = prob_I, prob_F = prob_F, delta = delta)
   
-  pred_obj <- predictMP_indept_parallel(X, Y, rbind(X, X1), n_ratio, m_ratio, K, fit_func,
+  # pred_obj <- predictMP_indept_parallel(X, Y, rbind(X, X1), n_ratio, m_ratio, K, fit_func,
+  #                              prob_I = prob_I, prob_F = prob_F, delta = delta, workers = 8)
+  pred_obj <- predictMP_indept_parallel(X, Y, X1, n_ratio, m_ratio, K, fit_func,
                                prob_I = prob_I, prob_F = prob_F, delta = delta, workers = 8)
 
   predictions     <- pred_obj$predictions
@@ -177,6 +179,7 @@ MPRegFeatureScore_indept <- function(X, Y, X1, Y1, n_ratio, m_ratio, K, fit_func
     Delta     = Delta,
     mse_train = mse_train,
     mse_test  = mse_test,
+    resids_LOO = resids_LOO,
     loo       = mean(resids_LOO, na.rm = TRUE),
     loo_std   = LOO_sd,
     loo_mean  = LOO_mean,
@@ -206,7 +209,14 @@ indept_weight_sample_epochtuned <- function(X, Y, X1, Y1, n_ratio, m_ratio, K,
 
     if (kk > 0) {
       prev <- res[[as.character(kk - 1L)]]
-      if (cur$loo >= prev$loo) {
+      # if (cur$loo >= prev$loo) {
+      #   # revert the last (worse) step
+      #   res[[as.character(kk)]] <- NULL
+      #   break
+      # }
+      LOO_change <- (cur$resids_LOO - prev$resids_LOO)
+      temp_z <- mean(LOO_change, na.rm = TRUE) / sd(LOO_change, na.rm = TRUE) * sqrt(N)
+      if(temp_z >= - qnorm(0.975)){
         # revert the last (worse) step
         res[[as.character(kk)]] <- NULL
         break
@@ -215,7 +225,7 @@ indept_weight_sample_epochtuned <- function(X, Y, X1, Y1, n_ratio, m_ratio, K,
 
     # Update sampling probabilities for features
     Delta <- cur$Delta
-    Delta_shift <- Delta - min(Delta) + 0.001/M
+    Delta_shift <- Delta - min(Delta) + 0.01/M
     weight_sort <- sort(Delta_shift, decreasing = TRUE)
 
     total_sum <- sum(weight_sort)

@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from scipy.stats import norm
 from joblib import Parallel, delayed
 from .plot_utils import plot_weight_tiuta_sort
 
@@ -95,6 +96,7 @@ def MPRegFeatureScore_indept(X,Y,X1,Y1,n_ratio,m_ratio,K,fit_func,prob_I,prob_F,
     res_tmp['Delta']=Delta
     res_tmp['mse_train']=mse_train
     res_tmp['mse_test']=mse_test
+    res_tmp['resids_LOO'] = resids_LOO
     res_tmp['loo'] = np.array(resids_LOO).mean()
     res_tmp['loo_std'] = LOO_sd
     res_tmp['loo_mean'] = LOO_mean
@@ -104,6 +106,7 @@ def MPRegFeatureScore_indept(X,Y,X1,Y1,n_ratio,m_ratio,K,fit_func,prob_I,prob_F,
 
 
 def indept_weight_sample_epochtuned(X,Y,X1,Y1,n_ratio,m_ratio,K,fit_func,delta,max_iter,plot=True):
+    N = len(X)
     M = len(X[0])
     kk = 0; prob_I = None; prob_F = None
     res = {}
@@ -115,14 +118,36 @@ def indept_weight_sample_epochtuned(X,Y,X1,Y1,n_ratio,m_ratio,K,fit_func,delta,m
 
     while kk < max_iter:
         res[kk]=MPRegFeatureScore_indept(X,Y,X1,Y1,n_ratio,m_ratio,K_list[kk],fit_func,prob_I,prob_F,delta)
+        # if kk > 0:
+        #    if res[kk]["loo"] >= res[kk-1]["loo"]:
+        #       res.popitem()
+        #       break
         if kk > 0:
-           if res[kk]["loo"] >= res[kk-1]["loo"]:
-              res.popitem()
-              break
+            cur = res[kk]
+            prev = res[kk - 1]
+
+            # LOO residual difference
+            loo_change = np.array(cur["resids_LOO"]) - np.array(prev["resids_LOO"])
+
+            # Remove NaNs (equivalent to na.rm = TRUE)
+            loo_change = loo_change[~np.isnan(loo_change)]
+
+            # Z statistic
+            temp_z = (
+                np.mean(loo_change) / np.std(loo_change, ddof=1)
+            ) * np.sqrt(N)
+
+            # R: -qnorm(0.975)
+            threshold = -norm.ppf(0.975)
+
+            if temp_z >= threshold:
+                # revert the last (worse) step
+                res.popitem()   # or res.pop(kk)
+                break
         ###########################
         ####### Update sampling probability
         ###########################
-        weight_tiuta = res[kk]['Delta'] - np.min(res[kk]['Delta']) + 0.001/M
+        weight_tiuta = res[kk]['Delta'] - np.min(res[kk]['Delta']) + 0.01/M
 
         weight_sort = np.sort(weight_tiuta)[::-1]
 

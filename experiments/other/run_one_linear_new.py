@@ -44,22 +44,23 @@ corr = 0.9
 
 # _, _, X1, Y1 = SimuLinear(N, M, N1, snr = snr, seed = 113, corr = corr, permute = False)
 #X, Y, X1, Y1 = SimuLinear_old(N, M, N1, k=10, rho=0.9, snr=snr, seed=111)
-X, Y, X1, Y1 = SimuLinear(N, M, N1, snr = snr, seed = 111, corr = corr, permute = True)
-# scaler = StandardScaler()
-# Y = scaler.fit_transform(Y.reshape(-1, 1))
+X, Y, X1, Y1 = SimuLinear(N, M, N1, snr = 30, seed = 111, corr = corr, permute = True)
+# X, Y, X1, Y1 = SimuLinear_old(N, M, N1, k=10, rho=corr, snr=2, seed=111)
+scaler = StandardScaler()
+Y = scaler.fit_transform(Y.reshape(-1, 1))
 
-# res = indept_weight_sample_epochtuned(X, Y, X1, Y1, n_ratio, m_ratio, K, fit_func, delta, max_iter, plot=False)
+res = indept_weight_sample_epochtuned(X, Y, X1, Y1, n_ratio, m_ratio, K, fit_func, delta, max_iter, plot=False)
 
-# last_key = next(reversed(res)) - 1
-# if last_key < 0:
-#     last_key = 0
+last_key = next(reversed(res)) - 1
+if last_key < 0:
+    last_key = 0
 # elif last_key == max_iter - 2:
 #     last_key += 1
-# nonlinear_select1 = np.where(res[last_key]["prob_F"] >= delta * 0.5)[0]
-# print(nonlinear_select1)
+nonlinear_select1 = np.where(res[last_key]["prob_F"] >= delta * 0.5)[0]
+print(nonlinear_select1)
 
-selected, _ = Elastic_oracle(X, Y)
-print(selected)
+# selected, _ = Elastic_oracle(X, Y)
+# print(selected)
 
 # with open(f"results/other/one_linear_corr{corr}_experiment_res.pkl", "wb") as f:
 #     pickle.dump(res, f)
