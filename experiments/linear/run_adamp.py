@@ -33,11 +33,11 @@ n_ratio= 0.4
 m_ratio= 0.12
 delta = 0.8
 K = [5787 for i in range(max_iter)]
-snr_list = [2,4,6,8,10]
+snr_list = [30, 40, 50, 60]
 number_signals = 10
 corr_list = [0, 0.5, 0.9]
 num_simus = 10
-permute = 1
+permute = 0
 
 total_iters = len(corr_list) * len(snr_list) * num_simus
 with tqdm(total=total_iters, desc="Total simulations") as pbar:
@@ -59,8 +59,6 @@ with tqdm(total=total_iters, desc="Total simulations") as pbar:
                 last_key = next(reversed(res)) - 1
                 if last_key < 0:
                     last_key = 0
-                elif last_key == max_iter - 2:
-                    last_key += 1
                 linear_select = np.where(res[last_key]["prob_F"] >= delta * 0.5)[0]
 
                 temp_df = pd.DataFrame()
