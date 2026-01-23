@@ -51,6 +51,7 @@ temp_results/*
 data/simulation/*
 data/riboflavin/*
 
+!data/simulation/generate_linear_data.py
 !data/simulation/generate_nonlinear_additive_data.py
 !data/simulation/generate_nonlinear_nonadditive_data.py
 
