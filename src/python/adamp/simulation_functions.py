@@ -156,13 +156,13 @@ def SimuLinear(N, M, N1, snr=1, seed=110, corr = 0.9, permute = 0):
     scaled_terms = [b * c for b, c in zip(betas, comps)]
     f_true = np.sum(scaled_terms, axis=0)
 
-    print("new simu: betas")
-    print(scaled_betas)
+    # print("new simu: betas")
+    # print(scaled_betas)
 
-    noise_var = np.var(f_true) / snr
+    # noise_var = np.var(f_true) / snr
 
-    print("new simu: noise var")
-    print(noise_var)
+    # print("new simu: noise var")
+    # print(noise_var)
 
     Y = f_true + np.sqrt(noise_var) * E
 
@@ -203,8 +203,8 @@ def SimuLinear_old(N, M, N1, k=10, rho=0.9, snr=1, seed=110):
     Y = X @ beta + rng.normal(scale=1, size=N)  # Add noise to simulate low SNR
 
     # print(np.var(X @ beta))
-    print("old simu: betas")
-    print(beta[:k])
+    # print("old simu: betas")
+    # print(beta[:k])
 
     # Test data
     X1 = rng.multivariate_normal(np.zeros(M), cov, size=N1)
