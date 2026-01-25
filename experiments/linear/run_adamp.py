@@ -32,7 +32,8 @@ fit_func=fit_funcs[func_name]
 n_ratio= 0.4
 m_ratio= 0.12
 delta = 0.8
-K = [5787 for i in range(max_iter)]
+K_i = int(max(50/((1-n_ratio)*m_ratio*m_ratio), 200/((1-n_ratio)*m_ratio)))
+K = [K_i for i in range(max_iter)]
 snr_list = [5, 10, 20, 30, 40, 50, 60]
 number_signals = 10
 corr_list = [0, 0.5, 0.9]
@@ -54,7 +55,7 @@ with tqdm(total=total_iters, desc="Total simulations") as pbar:
                 scaler = StandardScaler()
                 Y = scaler.fit_transform(Y.reshape(-1, 1))
 
-                res = indept_weight_sample_epochtuned(X, Y, X1, Y1, n_ratio, m_ratio, K, fit_func, delta, max_iter, plot=False)
+                res = indept_weight_sample_epochtuned(X, Y, X1, Y1, n_ratio, m_ratio, K, fit_func, delta, max_iter, plot=False, seed = 110+i)
 
                 last_key = next(reversed(res)) - 1
                 if last_key < 0:
