@@ -10,7 +10,7 @@ permute      = 1            # 1 = permute, 0 = nonpermute
 basemodel    = "linear"     # only option
 
 corr_list    = [0, 0.5, 0.9]
-snr_list     = [2, 4, 6, 8, 10]
+snr_list     = [5, 10, 20, 30, 40, 50, 60]
 num_simus    = 10
 max_iter     = 5
 delta        = 0.8

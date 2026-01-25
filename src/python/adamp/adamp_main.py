@@ -4,53 +4,54 @@ from scipy.stats import norm
 from joblib import Parallel, delayed
 from .plot_utils import plot_weight_tiuta_sort
 
-def indept_sample_array(probability):
+def indept_sample_array(probability, rng):
     sampled_indices = []
     while len(sampled_indices) == 0:
-        sampled_indices = np.where(np.random.rand(len(probability)) < probability)[0]
+        sampled_indices = np.where(rng.random(len(probability)) < probability)[0]
     return sampled_indices
 
 
 
-def buildMP_indept(X,Y,n_ratio,m_ratio,prob_I=None,prob_F=None,delta=1):
+def buildMP_indept(X,Y,n_ratio,m_ratio,prob_I=None,prob_F=None,delta=1,rng=None):
     N = len(X)
     M = len(X[0])
     n = int(n_ratio * N)
     m = int(m_ratio * M)
-    r = np.random.RandomState()
+
     ## index of minipatch
     if prob_I is None:
-        idx_I = np.sort(r.choice(N, size=n, replace=False))
+        idx_I = np.sort(rng.choice(N, size=n, replace=False))
     else:
-        idx_I = np.sort(r.choice(N, size=n, replace=False, p=prob_I))
+        idx_I = np.sort(rng.choice(N, size=n, replace=False, p=prob_I))
 
     if prob_F is None:
-        idx_F = indept_sample_array(np.ones(M)*m_ratio)
+        idx_F = indept_sample_array(np.ones(M) * m_ratio, rng)
     else:
-        idx_F = indept_sample_array(prob_F)
+        idx_F = indept_sample_array(prob_F, rng)
 
     ## record which obs/features are subsampled
     x_mp=X[np.ix_(idx_I, idx_F)]
     y_mp=Y[np.ix_(idx_I)]
     return [idx_I,idx_F,x_mp,y_mp]
 
-def predictMP_indept(X,Y,X1, n_ratio,m_ratio,B,fit_func,prob_I=None,prob_F=None,delta=1):
+def predictMP_indept(X,Y,X1, n_ratio,m_ratio,B,fit_func,prob_I=None,prob_F=None,delta=1,rng=None):
     N = len(X)
     M = len(X[0])
     N1 = len(X1)
     in_mp_obs,in_mp_feature = np.zeros((B,N),dtype=bool),np.zeros((B,M),dtype=bool)
     predictions=[]
+    rngs = rng.spawn(B)
     for b in range(B):
-        [idx_I,idx_F,x_mp,y_mp] = buildMP_indept(X,Y,n_ratio,m_ratio,prob_I,prob_F,delta)
+        [idx_I,idx_F,x_mp,y_mp] = buildMP_indept(X,Y,n_ratio,m_ratio,prob_I,prob_F,delta,rng=rngs[b])
         predictions.append(fit_func(x_mp,y_mp,X1[:, idx_F]))
         in_mp_obs[b,idx_I]=True
         in_mp_feature[b,idx_F]=True
     return [np.array(predictions),in_mp_obs,in_mp_feature]
 
-def MPRegFeatureScore_indept(X,Y,X1,Y1,n_ratio,m_ratio,K,fit_func,prob_I,prob_F,delta):
+def MPRegFeatureScore_indept(X,Y,X1,Y1,n_ratio,m_ratio,K,fit_func,prob_I,prob_F,delta,rng):
     N=len(X)
     M = len(X[0])
-    [predictions,in_mp_obs,in_mp_feature]= predictMP_indept(X,Y,np.vstack((X,X1)),n_ratio,m_ratio,K,fit_func,prob_I=prob_I,prob_F=prob_F,delta=delta)
+    [predictions,in_mp_obs,in_mp_feature]= predictMP_indept(X,Y,np.vstack((X,X1)),n_ratio,m_ratio,K,fit_func,prob_I=prob_I,prob_F=prob_F,delta=delta,rng=rng)
 
     predictions_train = predictions[:,:N]
     predictions_test = predictions[:,N:]
@@ -58,37 +59,100 @@ def MPRegFeatureScore_indept(X,Y,X1,Y1,n_ratio,m_ratio,K,fit_func,prob_I,prob_F,
     mse_train = np.mean((Y-predictions_train.mean(0))**2)
     mse_test = np.mean((Y1-predictions_test.mean(0))**2)
 
-    #############################
-    ## Find LOO
-    ##############_train##############
-    ######## b_keep gives length N Series; the ith item includes the MP indices that exclude sample i
-    b_keep = pd.DataFrame(~in_mp_obs).apply(lambda i: np.array(i[i].index))
-    ####### absolute error function; compute LOO
-    # resids_LOO = list(map(lambda i: np.abs(Y[i] - predictions_train[b_keep[i],i].mean()),range(N)))
-    resids_LOO = list(map(lambda i: (np.abs(Y[i] - predictions_train[b_keep[i],i].mean()))**2,range(N)))
+    # #############################
+    # ## Find LOO
+    # ##############_train##############
+    # ######## b_keep gives length N Series; the ith item includes the MP indices that exclude sample i
+    # b_keep = pd.DataFrame(~in_mp_obs).apply(lambda i: np.array(i[i].index))
+    # ####### absolute error function; compute LOO
+    # # resids_LOO = list(map(lambda i: np.abs(Y[i] - predictions_train[b_keep[i],i].mean()),range(N)))
+    # resids_LOO = list(map(lambda i: (np.abs(Y[i] - predictions_train[b_keep[i],i].mean()))**2,range(N)))
 
-    LOO_sd = np.array(list(map(lambda i: predictions_train[b_keep[i],i].std(),range(N)))).mean()
-    LOO_mean = np.array(list(map(lambda i: predictions_train[b_keep[i],i].mean(),range(N)))).mean()
+    # LOO_sd = np.array(list(map(lambda i: predictions_train[b_keep[i],i].std(),range(N)))).mean()
+    # LOO_mean = np.array(list(map(lambda i: predictions_train[b_keep[i],i].mean(),range(N)))).mean()
 
-    ################################
-    ######## FIND LOCO_LOO of
-    #############################
+    # ################################
+    # ######## FIND LOCO_LOO of
+    # #############################
     
-    results = Parallel(n_jobs=-1)(delayed(get_loco)(i,j,in_mp_feature,in_mp_obs,predictions_train) for i in range(N) for j in range(M))
-    ####### ress includes all the LOCO_LOO residuals
-    ress = pd.DataFrame(results)
-    ress['i'] = np.repeat(range(N),M)
-    ress['j'] = np.tile(range(M),N)
-    ress['true_y'] = np.repeat(Y,M)
+    # results = Parallel(n_jobs=-1,backend="loky",batch_size=1)(delayed(get_loco)(i,j,in_mp_feature,in_mp_obs,predictions_train) for i in range(N) for j in range(M))
+    # ####### ress includes all the LOCO_LOO residuals
+    # ress = pd.DataFrame(results)
+    # ress['i'] = np.repeat(range(N),M)
+    # ress['j'] = np.tile(range(M),N)
+    # ress['true_y'] = np.repeat(Y,M)
 
-    ress['resid_loco'] =(np.abs(ress['true_y'] - ress[0]))**2
-    ress['resid_loo'] = np.repeat(resids_LOO,M)
-    ress['zz'] = ress['resid_loco'] -ress['resid_loo']
+    # ress['resid_loco'] =(np.abs(ress['true_y'] - ress[0]))**2
+    # ress['resid_loo'] = np.repeat(resids_LOO,M)
+    # ress['zz'] = ress['resid_loco'] -ress['resid_loo']
 
 
-    Delta = np.zeros((M,));
-    for j in range(M):
-        Delta[j] = ress[ress.j==j].zz.mean()
+    # Delta = np.zeros((M,));
+    # for j in range(M):
+    #     Delta[j] = ress[ress.j==j].zz.mean()
+
+    Y = np.asarray(Y)
+    if Y.ndim > 1:
+        Y = Y.reshape(-1)
+    
+    P = np.asarray(predictions_train)            # (B, N)
+
+    # If P is (B, N, 1) or (B, N, k) with k=1, squeeze the last dim
+    if P.ndim == 3 and P.shape[-1] == 1:
+        P = P[..., 0]
+
+    A = (~in_mp_obs)                             # (B, N) bool
+    F = (~in_mp_feature)                         # (B, M) bool
+
+    A_f = A.astype(np.float64)                   # (B, N)
+    F_f = F.astype(np.float64)                   # (B, M)
+
+    # =========================
+    # Vectorized LOO
+    # =========================
+    count_loo = A_f.sum(axis=0)                  # (N,)
+    sum_loo   = (P * A_f).sum(axis=0)            # (N,)
+
+    loo_pred = np.divide(
+        sum_loo, count_loo,
+        out=np.full_like(sum_loo, np.nan, dtype=np.float64),
+        where=count_loo > 0
+    )                                            # (N,)
+
+    resids_LOO = (Y - loo_pred) ** 2             # (N,)
+
+    # LOO_sd: mean over i of std of P[b,i] over b where A[b,i] is True
+    # (matches np.std default ddof=0)
+    sum2_loo = ((P * P) * A_f).sum(axis=0)       # (N,)
+    var_loo = np.divide(
+        sum2_loo, count_loo,
+        out=np.full_like(sum2_loo, np.nan, dtype=np.float64),
+        where=count_loo > 0
+    ) - loo_pred**2
+
+    # numeric guard
+    var_loo = np.maximum(var_loo, 0.0)
+    std_loo = np.sqrt(var_loo)                   # (N,)
+
+    LOO_sd = np.nanmean(std_loo)
+    LOO_mean = np.nanmean(loo_pred)
+
+    # =========================
+    # Vectorized LOCO
+    # =========================
+    den = A_f.T @ F_f                             # (N, M) counts
+    num = (P * A_f).T @ F_f                       # (N, M) sums
+
+    loco_pred = np.divide(
+        num, den,
+        out=np.full_like(num, np.nan, dtype=np.float64),
+        where=den > 0
+    )                                             # (N, M)
+
+    resid_loco = (Y[:, None] - loco_pred) ** 2    # (N, M)
+    zz = resid_loco - resids_LOO[:, None]         # (N, M)
+
+    Delta = np.nanmean(zz, axis=0)
 
 
     ###########################
@@ -105,7 +169,8 @@ def MPRegFeatureScore_indept(X,Y,X1,Y1,n_ratio,m_ratio,K,fit_func,prob_I,prob_F,
     return res_tmp
 
 
-def indept_weight_sample_epochtuned(X,Y,X1,Y1,n_ratio,m_ratio,K,fit_func,delta,max_iter,plot=True):
+def indept_weight_sample_epochtuned(X,Y,X1,Y1,n_ratio,m_ratio,K,fit_func,delta,max_iter,plot=True,seed=123):
+    rng = np.random.default_rng(seed)
     N = len(X)
     M = len(X[0])
     kk = 0; prob_I = None; prob_F = None
@@ -117,7 +182,7 @@ def indept_weight_sample_epochtuned(X,Y,X1,Y1,n_ratio,m_ratio,K,fit_func,delta,m
 
 
     while kk < max_iter:
-        res[kk]=MPRegFeatureScore_indept(X,Y,X1,Y1,n_ratio,m_ratio,K_list[kk],fit_func,prob_I,prob_F,delta)
+        res[kk]=MPRegFeatureScore_indept(X,Y,X1,Y1,n_ratio,m_ratio,K_list[kk],fit_func,prob_I,prob_F,delta,rng=rng)
         # if kk > 0:
         #    if res[kk]["loo"] >= res[kk-1]["loo"]:
         #       res.popitem()

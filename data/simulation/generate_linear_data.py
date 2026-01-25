@@ -16,7 +16,7 @@ max_iter = 5
 
 number_signals = 10
 num_simus = 10
-snr_list = [30, 40, 50, 60]
+snr_list = [5, 10, 20, 30, 40, 50, 60]
 corr_list = [0, 0.5, 0.9]
 permute_list = [1, 0]
 

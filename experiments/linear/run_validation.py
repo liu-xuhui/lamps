@@ -13,7 +13,7 @@ from adamp.validation_methods import *
 
 num_simus = 10
 num_signals = 10
-snr_list = [2, 4, 6, 8, 10]
+snr_list = [5, 10, 20]
 corr_list = [0, 0.5, 0.9]
 permute = 1
 oracle = 1
