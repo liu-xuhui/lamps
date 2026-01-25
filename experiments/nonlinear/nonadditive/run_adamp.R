@@ -22,7 +22,7 @@ max_iter <- 5
 
 permute <- 0L   # use the same name everywhere
 
-func_name <- "sp"
+func_name <- "mr2"
 fit_funcs <- list(
   linear = linear_reg,
   mr     = mars_reg,
@@ -93,9 +93,8 @@ for (corr in corr_list) {
 
       if (num_epochs == 1L) {
         choose_key_name <- key_names[1L]
-      } else if (num_epochs == max_iter) {
-        choose_key_name <- key_names[num_epochs]
-      } else {
+      } 
+      else {
         choose_key_name <- key_names[num_epochs - 1L]
       }
 
