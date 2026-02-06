@@ -1,13 +1,18 @@
-
-
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import Lasso
 from sklearn.linear_model import LassoCV
+from sklearn.tree import DecisionTreeRegressor
 
 
 def linear_reg(X, Y, X1):
 
   clf = LinearRegression(fit_intercept=False).fit(X, Y)
+
+  return clf.predict(X1)
+
+def decisiontree_reg(X, Y, X1):
+
+  clf = DecisionTreeRegressor().fit(X, Y)
 
   return clf.predict(X1)
 
@@ -22,3 +27,4 @@ def lasso_reg_cv(X, Y, X1, n_folds=5):
     model.fit(X, Y)
 
     return model.predict(X1)
+

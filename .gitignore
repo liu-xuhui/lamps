@@ -3,8 +3,8 @@
 # ------------------------
 .venv/
 venv/
-env/
-ENV/
+# env/
+# ENV/
 *.egg-info/
 
 # Do NOT ignore our env/ folder that contains requirements & setup scripts
@@ -48,8 +48,17 @@ results/*
 
 temp_results/*
 
+
+
+# ------------------------
+# Data
+# ------------------------
+
 data/simulation/*
 data/riboflavin/*
+data/rosmap/*
+data/rosmap_methy/*
+
 
 !data/simulation/generate_linear_data.py
 !data/simulation/generate_nonlinear_additive_data.py

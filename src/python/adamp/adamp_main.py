@@ -1,7 +1,5 @@
 import numpy as np
-import pandas as pd
 from scipy.stats import norm
-from joblib import Parallel, delayed
 from .plot_utils import plot_weight_tiuta_sort
 
 def indept_sample_array(probability, rng):
@@ -187,6 +185,13 @@ def indept_weight_sample_epochtuned(X,Y,X1,Y1,n_ratio,m_ratio,K,fit_func,delta,m
         #    if res[kk]["loo"] >= res[kk-1]["loo"]:
         #       res.popitem()
         #       break
+        # print(res[kk]["loo"])
+           
+        # if kk > 0:
+        #    if res[kk]["loo"] >= 0.9*res[kk-1]["loo"]:
+        #       res.popitem()
+        #       break
+
         if kk > 0:
             cur = res[kk]
             prev = res[kk - 1]
@@ -209,6 +214,7 @@ def indept_weight_sample_epochtuned(X,Y,X1,Y1,n_ratio,m_ratio,K,fit_func,delta,m
                 # revert the last (worse) step
                 res.popitem()   # or res.pop(kk)
                 break
+
         ###########################
         ####### Update sampling probability
         ###########################

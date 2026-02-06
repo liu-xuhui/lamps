@@ -5,7 +5,8 @@ blas_set_num_threads(1)
 ## -------------------------------------------------------------------
 ## Load AdaMP code
 ## -------------------------------------------------------------------
-root <- "C:/Users/95815/Desktop/research/adamp"
+library(here)
+root <- here::here()
 
 source(file.path(root, "src", "R", "adamp", "adamp_main.R"))
 source(file.path(root, "src", "R", "adamp", "fit_functions.R"))

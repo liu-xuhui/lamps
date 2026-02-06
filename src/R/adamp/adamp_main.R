@@ -191,6 +191,7 @@ MPRegFeatureScore_indept <- function(X, Y, X1, Y1, n_ratio, m_ratio, K, fit_func
 # Epoch-tuned weighting and feature-sampling probabilities
 indept_weight_sample_epochtuned <- function(X, Y, X1, Y1, n_ratio, m_ratio, K,
                                             fit_func, delta, max_iter) {
+  N = nrow(X)
   M <- ncol(X)
   kk <- 0L
   prob_I <- NULL

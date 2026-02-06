@@ -33,12 +33,13 @@ n_ratio= 0.4
 m_ratio= 0.12
 delta = 0.8
 K = [5787 for i in range(max_iter)]
-snr = 40
+snr = 50
 number_signals = 10
-corr = 0
-rep = 3
+corr = 0.9
+rep = 7
+permute = 1
 
-df = pd.read_csv(f"data/simulation/linear_corr{corr}_snr{snr}_permute{0}_rep{rep}.csv")
+df = pd.read_csv(f"data/simulation/linear_corr{corr}_snr{snr}_permute{permute}_rep{rep}.csv")
 
 X = df.iloc[:,:500].to_numpy()
 Y = df["Y"].values
@@ -50,7 +51,7 @@ _, _, X1, Y1 = SimuLinear(N, M, N1, snr = snr, seed = 111, corr = corr, permute 
 scaler = StandardScaler()
 Y = scaler.fit_transform(Y.reshape(-1, 1))
 
-res = indept_weight_sample_epochtuned(X, Y, X1, Y1, n_ratio, m_ratio, K, fit_func, delta, max_iter, plot=False, seed = 111)
+res = indept_weight_sample_epochtuned(X, Y, X1, Y1, n_ratio, m_ratio, K, fit_func, delta, max_iter, plot=False, seed = 110+rep)
 
 last_key = next(reversed(res)) - 1
 if last_key < 0:
@@ -59,7 +60,7 @@ if last_key < 0:
 #     last_key += 1
 nonlinear_select1 = np.where(res[last_key]["prob_F"] >= delta * 0.5)[0]
 print(nonlinear_select1)
-print(res[last_key]["prob_F"][:12])
+# print(res[last_key]["prob_F"][:12])
 
 # selected, _ = Elastic_oracle(X, Y)
 # print(selected)

@@ -71,24 +71,6 @@ extract_final_loo <- function(res, max_iter) {
 }
 
 # selection rule
-# extract_selected_features <- function(res, max_iter, delta) {
-#   stopifnot(length(res) >= 1L)
-#   key_names  <- sort(names(res))
-#   num_epochs <- length(key_names)
-
-#   if (num_epochs == 1L) {
-#     choose_key_name <- key_names[1L]
-#   } else if (num_epochs == max_iter) {
-#     choose_key_name <- key_names[num_epochs]
-#   } else {
-#     choose_key_name <- key_names[num_epochs - 1L]
-#   }
-
-#   prob_F_use <- res[[choose_key_name]]$prob_F
-#   if (is.null(prob_F_use)) stop("Selected epoch has no prob_F stored.")
-
-#   which(prob_F_use >= delta * 0.5)
-# }
 extract_selected_features <- function(res, max_iter, delta) {
   stopifnot(length(res) >= 1L)
   key_names  <- sort(names(res))

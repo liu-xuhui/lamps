@@ -2,148 +2,191 @@ import os
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 
-# This file is just temporary code for plot linear experiment result.
-# TODO: change linear experiment setting to align with the nonlinear setting
-# TODO: run linear correlated 1 and correlated 2 setting and save oracle and non-oracle result
-# TODO: save selections but not just F1 score so that Precision and recall can be plot
+# ---------------- user-configurable inputs ----------------
+eval_metd    = "f1_score"   # "f1_score" | "precision" | "recall"
+oracle       = 1            # must be 1 (placeholder in filenames)
+permute      = 1            # 1 = permute, 0 = nonpermute
+basemodel    = "linear"     # only option
 
-folder_path = "results/linear"
+corr_list    = [0, 0.5, 0.9]
+snr_list     = [5, 10, 20, 30, 40, 50, 60]
+num_simus    = 10
+max_iter     = 5
+delta        = 0.8
+number_signals = 10
+M            = 500
+# ----------------------------------------------------------
 
-# Dictionary to store results
-results_dict = {}
+# Load the per-correlation results dict
+with open(f"results/linear/linear_oracle{oracle}_permute{permute}_result_dict.pkl", "rb") as f:
+    result_dict = pickle.load(f)
 
-# Loop through all pkl files
-for filename in os.listdir(folder_path):
-    if filename.endswith("_result_dict.pkl"):
-        short_key = filename.replace("_result_dict.pkl", "")
-        filepath = os.path.join(folder_path, filename)
-        with open(filepath, "rb") as f:
-            results_dict[short_key] = pickle.load(f)
+# Metric label mapping
+metric_name_map = {"f1_score": "F1 Score", "precision": "Precision", "recall": "Recall"}
+y_label = f"Feature-Selection {metric_name_map.get(eval_metd, eval_metd.title())}"
 
-with open("results/linear/result_dict_lowsnr.pkl", "rb") as f:
-    lowsnr_dict = pickle.load(f)
+oracle_str  = "oracle" if oracle else "nonoracle"   # placeholder for title/filename
+permute_str = "permute" if permute else "nonpermute"
+title_label = (
+    f"Linear — Feature-Selection {metric_name_map.get(eval_metd, eval_metd.title())} "
+    f"vs. SNR {oracle_str} {permute_str}"
+)
 
-
-results_dict["highdim_00"][0.05] = lowsnr_dict["highdim0"]
-results_dict["highdim_05"][0.05] = lowsnr_dict["highdim5"]
-results_dict["highdim_09"][0.05] = lowsnr_dict["highdim9"]
-results_dict["middim_00"][0.05] = lowsnr_dict["middim0"]
-results_dict["middim_05"][0.05] = lowsnr_dict["middim5"]
-results_dict["middim_09"][0.05] = lowsnr_dict["middim9"]
-results_dict["lowdim_00"][0.05] = lowsnr_dict["lowdim0"]
-results_dict["lowdim_05"][0.05] = lowsnr_dict["lowdim5"]
-results_dict["lowdim_09"][0.05] = lowsnr_dict["lowdim9"]
-
-
-palette = sns.color_palette("colorblind", 7)
-
-# Assign colors explicitly (AdaMP = red)
-colors = {
-    'AdaMP': 'red',
-    'Stability Selection': palette[0],
-    'Lasso (eBIC)': palette[1],
-    'Lasso (CV)': palette[3],
-    'Lasso (Oracle)': palette[4],
-    'CPSS': palette[5],
-    'Elastic Net (Oracle)': palette[6]
-}
-
-markers = {
-    'AdaMP': 'o',
-    'Stability Selection': 's',
-    'Lasso (eBIC)': 'D',
-    'Lasso (CV)': '^',
-    'Lasso (Oracle)': 'p',
-    'CPSS': '*',
-    'Elastic Net (Oracle)': 'x'
-}
-
-linestyles = {
-    'AdaMP': '-',
-    'Stability Selection': '--',
-    'Lasso (eBIC)': '-.',
-    'Lasso (CV)': ':',
-    'Lasso (Oracle)': '--',
-    'CPSS': '-.',
-    'Elastic Net (Oracle)': ':'
-}
-
-resdictkeys = [
-    'highdim_00', 'highdim_05', 'highdim_09',
-    'middim_00', 'middim_05', 'middim_09',
-    'lowdim_00', 'lowdim_05', 'lowdim_09'
-]
-
-title_map = {
-    '00': "Independent (ρ=0)",
-    '05': "ρ=0.5",
-    '09': "ρ=0.9"
-}
-
-row_map = {
-    'highdim': "High-dim",
-    'middim': "Mid-dim",
-    'lowdim': "Low-dim"
-}
-
-fig, axes = plt.subplots(3, 3, figsize=(15, 12), sharex=True, sharey=True)
-
-for idx, key in enumerate(resdictkeys):
-    ax = axes[idx // 3, idx % 3]
-
-    result_dict = results_dict[key]
-    # sorted_snrs = sorted(result_dict.keys())
-    sorted_snrs = [0.05, 0.1, 0.3, 1, 3]
-
-    f1_data = {
-        'AdaMP': [result_dict[snr]['adam_f1'] for snr in sorted_snrs],
-        'Stability Selection': [result_dict[snr]['las_f1'] for snr in sorted_snrs],
-        'Lasso (eBIC)': [result_dict[snr]['ebic_f1'] for snr in sorted_snrs],
-        'Lasso (CV)': [result_dict[snr]['lassocv_f1'] for snr in sorted_snrs],
-        'Lasso (Oracle)': [result_dict[snr]['lassoor_f1'] for snr in sorted_snrs],
-        'CPSS': [result_dict[snr]['cpss_f1'] for snr in sorted_snrs],
-        'Elastic Net (Oracle)': [result_dict[snr]['elastic_f1'] for snr in sorted_snrs]
+def compute_f1_score(selected_features, total_features=500, signal_features=list(range(10))):
+    selected_features = set(selected_features)
+    signal_features   = set(signal_features)
+    tp = len(selected_features & signal_features)
+    fp = len(selected_features - signal_features)
+    fn = len(signal_features - selected_features)
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+    recall    = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+    f1        = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
+    return {
+        'precision': precision, 'recall': recall, 'f1_score': f1,
+        'true_positives': tp, 'false_positives': fp, 'false_negatives': fn
     }
 
-    for method, values in f1_data.items():
-        means = np.array([np.mean(v) for v in values])
-        stds = np.array([np.std(v) for v in values])
-        se = stds / np.sqrt([len(v) for v in values])
+# Matplotlib publication style
+plt.rcParams.update({
+    "font.size": 11, "axes.titlesize": 12, "axes.labelsize": 12,
+    "legend.fontsize": 10, "xtick.labelsize": 11, "ytick.labelsize": 11,
+    "figure.dpi": 120, "savefig.dpi": 300
+})
 
-        ax.errorbar(sorted_snrs, means, yerr=se,
-            marker=markers[method],
-            color=colors[method],
-            linestyle=linestyles[method],
-            linewidth=3 if method == 'AdaMP' else 1.8,
-            markersize=6 if method == 'AdaMP' else 5,
-            capsize=3,   # small horizontal bar at ends
-            elinewidth=1.2,
-            label=method)
+# Colors/markers (AdaMP highlighted)
+method_styles = {
+    "AdaMP (OLS)": {"color": "red",      "marker": "o", "lw": 2.2, "zorder": 5},
+    "Stability Selection":      {"color": "#596780",  "marker": "s", "lw": 1.6},
+    "Lasso-eBIC":           {"color": "#7AA6DC",  "marker": "x", "lw": 1.6},
+    "Lasso-CV":       {"color": "#9CCB86",  "marker": "<", "lw": 1.6},
+    "Lasso-OR":       {"color": "#DBA159",  "marker": ">", "lw": 1.6},
+    "CPSS":           {"color": "#B57BA6",  "marker": "v", "lw": 1.6},
+    "ElasticNet-CV":     {"color": "#888888",  "marker": "*", "lw": 1.6},
+    "ElasticNet-OR":  {"color": "#AA4499",  "marker": "D", "lw": 1.6},
+}
 
-    dim, corr = key.split("_")
-    ax.set_title(f"{row_map[dim]} - {title_map[corr]}", fontsize=13)
-    ax.set_xscale("log")
+# 1×3 grid over correlations; shared Y, one legend
+fig, axes = plt.subplots(1, 3, figsize=(13.5, 4.6), sharey=True, constrained_layout=False)
+legend_handles = None
+legend_labels  = None
 
-    # Adjusted y-axis
-    ax.set_ylim(0.1, 1.05)
-    ax.tick_params(axis='both', labelsize=11)
-    ax.grid(True, linestyle="--", alpha=0.5)
+for j, rho in enumerate(corr_list):
+    # per-correlation method dict
+    com_method_result_dict = result_dict[rho]
 
-# Shared labels
-fig.text(0.5, 0.04, 'SNR', ha='center', fontsize=15)
-fig.text(0.04, 0.5, 'F1 Score', va='center', rotation='vertical', fontsize=15)
+    # containers for per-SNR replicate metric
+    met_AdaMP  = {snr: [] for snr in snr_list}
+    met_Stab   = {snr: [] for snr in snr_list}
+    met_eBIC   = {snr: [] for snr in snr_list}
+    met_LCV    = {snr: [] for snr in snr_list}
+    met_LOR    = {snr: [] for snr in snr_list}
+    met_CPSS   = {snr: [] for snr in snr_list}
+    met_EN     = {snr: [] for snr in snr_list}
+    met_ENOR   = {snr: [] for snr in snr_list}
 
-# Legend
-handles, labels = ax.get_legend_handles_labels()
-fig.legend(handles, labels, loc='lower center', ncol=4, fontsize=12, frameon=False)
+    # loop through SNRs and seeds (all linear methods assumed 0-based indexing for signals)
+    for snr in snr_list:
+        for i in range(num_simus):
+            # AdaMP (linear)
+            adam_select = com_method_result_dict["adamlinear"][snr][i]
+            met_AdaMP[snr].append(
+                compute_f1_score(adam_select, M, list(range(number_signals)))[eval_metd]
+            )
+            # Stability selection
+            stab_select = com_method_result_dict["stability"][snr][i]
+            met_Stab[snr].append(
+                compute_f1_score(stab_select, M, list(range(number_signals)))[eval_metd]
+            )
+            # eBIC
+            ebic_select = com_method_result_dict["ebic"][snr][i]
+            met_eBIC[snr].append(
+                compute_f1_score(ebic_select, M, list(range(number_signals)))[eval_metd]
+            )
+            # Lasso-CV
+            lcv_select = com_method_result_dict["lassocv"][snr][i]
+            met_LCV[snr].append(
+                compute_f1_score(lcv_select, M, list(range(number_signals)))[eval_metd]
+            )
+            # Lasso-OR
+            lor_select = com_method_result_dict["lassoor"][snr][i]
+            met_LOR[snr].append(
+                compute_f1_score(lor_select, M, list(range(number_signals)))[eval_metd]
+            )
+            # CPSS
+            cpss_select = com_method_result_dict["cpss"][snr][i]
+            met_CPSS[snr].append(
+                compute_f1_score(cpss_select, M, list(range(number_signals)))[eval_metd]
+            )
+            # ElasticNet (CV)
+            en_select = com_method_result_dict["elastic"][snr][i]
+            met_EN[snr].append(
+                compute_f1_score(en_select, M, list(range(number_signals)))[eval_metd]
+            )
+            # ElasticNet-OR
+            enor_select = com_method_result_dict["elasticor"][snr][i]
+            met_ENOR[snr].append(
+                compute_f1_score(enor_select, M, list(range(number_signals)))[eval_metd]
+            )
 
-# Global title
-fig.suptitle("Feature Selection F1 Scores Across Dimensionality and Correlation Settings",
-             fontsize=18, y=0.995)
+    # helper: mean & SE arrays in SNR order
+    def mean_se(dct):
+        means = [np.mean(dct[s]) if len(dct[s])>0 else np.nan for s in snr_list]
+        ses   = [np.std(dct[s], ddof=1)/np.sqrt(len(dct[s])) if len(dct[s])>1 else 0.0 for s in snr_list]
+        return np.array(means), np.array(ses)
 
-plt.tight_layout(rect=[0, 0.08, 1, 0.96])
-plt.savefig("results/linear/temp_f1_comparison.pdf", bbox_inches="tight")
+    method_to_data = {
+        "AdaMP (OLS)": mean_se(met_AdaMP),
+        "Stability Selection":      mean_se(met_Stab),
+        "Lasso-eBIC":           mean_se(met_eBIC),
+        "Lasso-CV":       mean_se(met_LCV),
+        "Lasso-OR":       mean_se(met_LOR),
+        "CPSS":           mean_se(met_CPSS),
+        "ElasticNet-CV":     mean_se(met_EN),
+        "ElasticNet-OR":  mean_se(met_ENOR),
+    }
+
+    ax = axes[j]
+    handles, labels = [], []
+
+    # plot each method with error bars
+    for name, (means, ses) in method_to_data.items():
+        style = method_styles[name]
+        h = ax.errorbar(
+            snr_list, means, yerr=ses, fmt=style["marker"]+'-',
+            linewidth=style.get("lw", 1.6), markersize=6,
+            color=style["color"], capsize=3, elinewidth=1.0,
+            zorder=style.get("zorder", 3), label=name
+        )
+        if j == 0:
+            handles.append(h); labels.append(name)
+
+    # cosmetics
+    ax.set_xlabel("SNR")
+    if j == 0:
+        ax.set_ylabel(y_label)
+    ax.grid(True, alpha=0.25, linewidth=0.8)
+    for spine in ["top", "right"]:
+        ax.spines[spine].set_visible(False)
+
+    # annotate rho
+    ax.text(0.02, 0.95, rf"$\rho = {rho}$", transform=ax.transAxes,
+            ha="left", va="top", fontsize=11,
+            bbox=dict(boxstyle="round,pad=0.2", facecolor="white", edgecolor="#DDDDDD", alpha=0.9))
+
+    if j == 0:
+        legend_handles, legend_labels = handles, labels
+
+# Shared title & legend
+fig.suptitle(title_label, y=1.03)
+if legend_handles is not None:
+    fig.legend(legend_handles, legend_labels, loc="lower center", ncol=4, frameon=False)
+
+fig.subplots_adjust(bottom=0.25, top=0.9, wspace=0.1)
+
+# Save
+outdir = "results/linear"
+os.makedirs(outdir, exist_ok=True)
+figpath = os.path.join(outdir, f"{eval_metd}_{oracle_str}_{permute_str}_{basemodel}.png")
+fig.savefig(figpath, bbox_inches="tight")
 plt.show()
-
