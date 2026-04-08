@@ -143,6 +143,54 @@ def compute_lasso_oracle_select_features(X, y, s_true=10, lambda_grid=None):
     coef_abs = np.abs(best_model.coef_)
     return selected_features.tolist(), coef_abs
 
+def compute_lasso_oracle_range_select_features(X, y, s_true=20, lambda_grid=None, max_extra=10):
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    lambda_max = np.max(np.abs(X_scaled.T @ y)) / X.shape[0]
+    if lambda_grid is None:
+        lambda_grid = np.logspace(np.log10(0.01 * lambda_max), np.log10(lambda_max), 50)
+
+    best_model_in_range = None
+    best_nonzero_in_range = None
+
+    best_model_fallback = None
+    closest_diff = float("inf")
+
+    for alpha in lambda_grid:
+        model = Lasso(alpha=alpha, fit_intercept=True, max_iter=1000)
+        model.fit(X_scaled, y)
+        nonzero_coef = np.sum(model.coef_ != 0)
+
+        # First priority: number of nonzero coefficients in [s_true, s_true + max_extra]
+        if s_true <= nonzero_coef <= s_true + max_extra:
+            # Prefer the smallest model within the valid range
+            if (best_model_in_range is None) or (nonzero_coef < best_nonzero_in_range):
+                best_model_in_range = model
+                best_nonzero_in_range = nonzero_coef
+
+                if nonzero_coef == s_true:
+                    selected_features = np.where(model.coef_ != 0)[0]
+                    coef_abs = np.abs(model.coef_)
+                    return selected_features.tolist(), coef_abs
+
+        # Fallback: closest to s_true if no valid model is found
+        diff = abs(nonzero_coef - s_true)
+        if diff < closest_diff:
+            closest_diff = diff
+            best_model_fallback = model
+
+    # Use best model in desired range if available
+    if best_model_in_range is not None:
+        selected_features = np.where(best_model_in_range.coef_ != 0)[0]
+        coef_abs = np.abs(best_model_in_range.coef_)
+        return selected_features.tolist(), coef_abs
+
+    # Otherwise fall back to closest model
+    selected_features = np.where(best_model_fallback.coef_ != 0)[0]
+    coef_abs = np.abs(best_model_fallback.coef_)
+    return selected_features.tolist(), coef_abs
+
 def CPSS(X, y, alpha=0.01, B=50, tau=0.6, random_state=None):
     n, p = X.shape
     selection_counts = np.zeros(p)
@@ -245,3 +293,18 @@ def Konckoff_select(X, y, fdrate):
     kf1 = knockoff_filter.KnockoffFilter(fstat='randomforest')
     kf_selected = np.where(kf1.forward(X, y, fdr = fdrate) != 0)[0]
     return kf_selected
+
+
+def compute_f1_score(selected_features, total_features=500, signal_features=list(range(10))):
+    selected_features = set(selected_features)
+    signal_features   = set(signal_features)
+    tp = len(selected_features & signal_features)
+    fp = len(selected_features - signal_features)
+    fn = len(signal_features - selected_features)
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+    recall    = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+    f1        = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
+    return {
+        'precision': precision, 'recall': recall, 'f1_score': f1,
+        'true_positives': tp, 'false_positives': fp, 'false_negatives': fn
+    }

@@ -13,6 +13,7 @@ corr_list = [0, 0.5, 0.9]
 result_dict = {0.5:{}}
 folder = "temp_results/nonlinear/nonadditive"
 hypertuning_folder = "temp_results/hyperparam_tuning/nonlinear_nonadditive_corr0.5_permute0/best"
+hypertuning_folder_sp = "temp_results/hyperparam_tuning/nonlinear_sp_nonadditive_corr0.5_permute0/best"
 
 for permute in [0]:
     for oracle in [0]:
@@ -36,7 +37,7 @@ for permute in [0]:
                         vars_list = []
                     com_method_result_dict["adammars"][snr][rep] = vars_list
 
-                    file_path = os.path.join(hypertuning_folder, f"adamspam_selected_corr{corr}_snr{snr}_permute{permute}_oracle{oracle}_rep{rep}.csv")
+                    file_path = os.path.join(hypertuning_folder_sp, f"adamspam_selected_corr{corr}_snr{snr}_permute{permute}_oracle{oracle}_rep{rep}.csv")
                     if os.path.exists(file_path):
                         df = pd.read_csv(file_path)
                         vars_list = df["var"].dropna().astype(int).tolist() if "var" in df.columns else []

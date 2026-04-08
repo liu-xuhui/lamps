@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "src" / "python"))
 from adamp.fit_functions import linear_reg
 from adamp.adamp_main import *
 from adamp.simulation_functions import SimuLinear
+from adamp.simulation_functions import SimuFriedmanAdditive
 
 
 N = 200; M = 500; N1 = 50;
@@ -33,8 +34,9 @@ snr = 1
 number_signals = 10
 corr = 0
 
-X, Y, X1, Y1 = SimuLinear(N, M, N1, k=10, rho=corr, snr=1, seed=110)
-res = indept_weight_sample_epochtuned(X, Y, X1, Y1, n_ratio, m_ratio, K, fit_func, delta, max_iter, plot=False)
+#X, Y, X1, Y1 = SimuLinear(N, M, N1, snr=1, seed=110, corr = 0)
+X, Y, X1, Y1 = SimuFriedmanAdditive(N, M, N1, snr=1, seed=110, corr = 0)
+# res = indept_weight_sample_epochtuned(X, Y, X1, Y1, n_ratio, m_ratio, K, fit_func, delta, max_iter, plot=False)
 
-with open(f"results/other/one_linear_corr{corr}_experiment_res.pkl", "wb") as f:
-    pickle.dump(res, f)
+# with open(f"results/other/one_linear_corr{corr}_experiment_res.pkl", "wb") as f:
+#     pickle.dump(res, f)

@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 # ---------------- user-configurable inputs ----------------
 oracle   = 0  # oracle must be 0
 permute  = 0  # 1 = permute, 0 = nonpermute
-basemodel = "marsbase"  # "marsbase", "spambase", or "both"
+basemodel = "both"  # "marsbase", "spambase", or "both"
 
 corr_list = [0.5]       # keep ONE rho if you want ONE plot
 snr_list  = [4, 6, 8, 10]

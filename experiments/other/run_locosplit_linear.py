@@ -1,6 +1,8 @@
 import sys
 from pathlib import Path
 import pickle
+import numpy as np
+import pandas as pd
 
 # Add src/python to PYTHONPATH
 ROOT = Path(__file__).resolve().parents[2]
@@ -16,7 +18,6 @@ MP setting
 """
 N = 200; M = 500; N1 = 50;
 
-corr = 0.9
 max_iter = 5
 func_name = 'cv'
 fit_funcs = {
@@ -28,12 +29,23 @@ n_ratio= 0.4
 m_ratio= 0.12
 delta = 0.8
 K = [5787 for i in range(max_iter)]
-snr = 1
 number_signals = 10
 n = int(N*n_ratio)
 m = int(M*m_ratio)
 
-X, Y, X1, Y1 = SimuLinear(N, M, N1, k=10, rho=corr, snr=1, seed=110)
+snr = 50
+corr = 0.9
+rep = 0
+permute = 0
+
+df = pd.read_csv(f"data/simulation/linear_corr{corr}_snr{snr}_permute{permute}_rep{rep}.csv")
+
+X = df.iloc[:,:500].to_numpy()
+Y = df["Y"].values
+
+_, _, X1, Y1 = SimuLinear(N, M, N1, snr = snr, seed = 111, corr = corr, permute = False)
+
+np.random.seed(110+rep)
 
 res = LOCOSplitReg(X,Y,X1, Y1, fit_funct = fit_func, ratio = n_ratio, selected_features=[],n_features = M,alpha=0.1,bonf=False)
 

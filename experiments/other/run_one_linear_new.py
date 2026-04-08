@@ -33,11 +33,12 @@ n_ratio= 0.4
 m_ratio= 0.12
 delta = 0.8
 K = [5787 for i in range(max_iter)]
-snr = 50
+
 number_signals = 10
+snr = 50
 corr = 0.9
-rep = 7
-permute = 1
+rep = 0
+permute = 0
 
 df = pd.read_csv(f"data/simulation/linear_corr{corr}_snr{snr}_permute{permute}_rep{rep}.csv")
 
@@ -56,14 +57,9 @@ res = indept_weight_sample_epochtuned(X, Y, X1, Y1, n_ratio, m_ratio, K, fit_fun
 last_key = next(reversed(res)) - 1
 if last_key < 0:
     last_key = 0
-# elif last_key == max_iter - 2:
-#     last_key += 1
-nonlinear_select1 = np.where(res[last_key]["prob_F"] >= delta * 0.5)[0]
-print(nonlinear_select1)
-# print(res[last_key]["prob_F"][:12])
 
-# selected, _ = Elastic_oracle(X, Y)
-# print(selected)
+linear_select = np.where(res[last_key]["prob_F"] >= delta * 0.5)[0]
 
-# with open(f"results/other/one_linear_corr{corr}_experiment_res.pkl", "wb") as f:
-#     pickle.dump(res, f)
+
+with open(f"results/other/one_linear_corr{corr}_experiment_res.pkl", "wb") as f:
+    pickle.dump(res, f)

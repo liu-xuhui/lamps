@@ -4,9 +4,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # ---------------- user-configurable inputs ----------------
-eval_metd    = "f1_score"   # "f1_score" | "precision" | "recall"
+eval_metd    = "precision"   # "f1_score" | "precision" | "recall"
 oracle       = 1            # must be 1 (placeholder in filenames)
-permute      = 1            # 1 = permute, 0 = nonpermute
+permute      = 0            # 1 = permute, 0 = nonpermute
 basemodel    = "linear"     # only option
 
 corr_list    = [0, 0.5, 0.9]

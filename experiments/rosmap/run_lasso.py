@@ -11,6 +11,7 @@ src_python = project_root / "src" / "python"
 sys.path.insert(0, str(src_python))
 
 from adamp.validation_methods import compute_lasso_oracle_select_features
+from adamp.validation_methods import compute_lasso_oracle_range_select_features
 
 # --------------------------------------------------
 # SETTINGS
@@ -53,7 +54,8 @@ for i in range(1, n_splits + 1):
     X = df.drop(columns=["Y"]).values  # X is already numeric
 
 
-    selected, coef = compute_lasso_oracle_select_features(X, Y, s_true = 30)
+    # selected, coef = compute_lasso_oracle_select_features(X, Y, s_true = 30)
+    selected, coef = compute_lasso_oracle_range_select_features(X, Y, 20)
     sort_selected = np.argsort(coef)[::-1][:len(selected)]
 
     # Store as column i-1

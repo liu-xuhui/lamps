@@ -4,8 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-eval_metd    = "f1_score"  # f1_score or precision or recall
-oracle       = 1
+eval_metd    = "recall"  # f1_score or precision or recall
+oracle       = 0
 permute      = 1
 # "marsbase", "spambase", or "both"
 basemodel    = "both"

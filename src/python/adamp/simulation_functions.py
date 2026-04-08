@@ -68,6 +68,7 @@ def SimuFriedmanAdditive(N, M, N1, snr=1, seed=110, corr = 0.9, permute = False)
     f_true = np.sum(scaled_terms, axis=0)
 
     noise_var = np.var(f_true) / snr
+    # print(noise_var)
     Y = f_true + np.sqrt(noise_var) * E
 
     # Test data
@@ -150,6 +151,7 @@ def SimuLinear(N, M, N1, snr=1, seed=110, corr = 0.9, permute = 0):
     variances = np.array([np.var(c) for c in comps])
 
     betas = rng.choice([-1, 1], size=10) * rng.uniform(2, 3, size=10) 
+    # betas = rng.uniform(2, 3, size=10) 
 
     scaled_betas = betas / np.sqrt(variances)
 
@@ -246,3 +248,60 @@ def SimuLinear_old(N, M, N1, k=10, rho=0.9, snr=1, seed=110):
 #     Y1 = X1 @ beta + rng.normal(scale=1, size=N1)
 
 #     return [X, Y, X1, Y1]
+
+
+def SimuLinear_sparsity(N, M, N1, k = 10, snr=1, seed=110, corr = 0.9, permute = 0):
+    np.random.seed(seed)
+
+    rng = np.random.default_rng(seed)
+    cov = corr ** np.abs(np.subtract.outer(np.arange(M), np.arange(M)))
+
+    # this two rows are used to permute cov
+    if permute == 1 and corr != 0:
+        perm = rng.permutation(M)
+        cov = cov[np.ix_(perm, perm)]
+
+    X = rng.multivariate_normal(np.zeros(M), cov, size=N)
+
+    E = np.random.normal(0, 1, size=N)
+
+    comps = [X[:,j] for j in range(k)]
+
+    variances = np.array([np.var(c) for c in comps])
+
+    betas = rng.choice([-1, 1], size=k) * rng.uniform(2, 3, size=k) 
+    # betas = rng.uniform(2, 3, size=10) 
+
+    scaled_betas = betas / np.sqrt(variances)
+
+    scaled_terms = [b * c for b, c in zip(scaled_betas, comps)]
+    f_true = np.sum(scaled_terms, axis=0)
+
+    # print("new simu: betas")
+    # print(betas)
+
+    # print("new simu: scale betas")
+    # print(scaled_betas)
+
+    # noise_var = np.var(f_true) / snr
+    noise_var = 13
+
+    # print("new simu: noise var")
+    # print(noise_var)
+
+    Y = f_true + np.sqrt(noise_var) * E
+
+    # Test data
+    X1 = rng.multivariate_normal(np.zeros(M), cov, size=N1)
+    E1 = np.random.normal(0, 1, size=N1)
+    comps = _component_functions_linear(X1)
+    variances = np.array([np.var(c) for c in comps])
+    betas = rng.uniform(2, 3, size=10) #* rng.choice([-1,1], size = 10)
+    scaled_betas = betas / np.sqrt(variances)
+    scaled_terms = [b * c for b, c in zip(scaled_betas, comps)]
+    f_true1 = np.sum(scaled_terms, axis=0)
+    noise_var = np.var(f_true1) / snr
+    Y1 = f_true1 + np.sqrt(noise_var) * E1
+
+
+    return [X, Y, X1, Y1]

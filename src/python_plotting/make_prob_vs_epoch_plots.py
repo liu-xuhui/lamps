@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 # TODO: Add corr as user input setting
 
 # User input
-corr = 0
-plot_kind = "delta"   # "delta" or "prob"
+corr = 0.9
+plot_kind = "prob"   # "delta" or "prob"
 
 with open(f"results/other/one_linear_corr{corr}_experiment_res.pkl", "rb") as f:
     res = pickle.load(f)

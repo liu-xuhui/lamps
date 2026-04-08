@@ -9,7 +9,7 @@ from sklearn.metrics import mean_squared_error
 # Settings
 # ------------------------------------------------------------
 N_SPLITS = 10
-K_LIST = list(range(1, 20, 1))  # 2,4,...,30
+K_LIST = list(range(1, 21, 1))  # 2,4,...,30
 
 # Random Forest settings (fixed for fair comparison)
 RF_PARAMS = dict(

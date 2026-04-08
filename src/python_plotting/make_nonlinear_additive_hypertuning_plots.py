@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 eval_metd    = "f1_score"  # "f1_score" | "precision" | "recall"
 oracle       = 0
 permute      = 0
-basemodel    = "marsbase"  # "marsbase", "spambase", or "both"
+basemodel    = "both"  # "marsbase", "spambase", or "both"
 
 corr_list    = [0.5]       # keep ONE rho if you want ONE plot
 
