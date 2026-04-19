@@ -21,7 +21,7 @@ N1 <- 50
 max_iter <- 5
 delta    <- 0.8
 
-permute <- 0L
+permute <- as.integer(Sys.getenv("ADAMP_PERMUTE", "0"))
 corr    <- 0.5
 
 # base model: MARS
@@ -60,7 +60,7 @@ grid <- expand.grid(
 ## -------------------------------------------------------------------
 base_out_dir <- file.path(
   root, "temp_results", "hyperparam_tuning",
-  "nonlinear_additive_corr0.5_permute0"
+  sprintf("nonlinear_additive_corr0.5_permute%d", permute)
 )
 best_out_dir <- file.path(base_out_dir, "best")
 grid_out_dir <- file.path(base_out_dir, "grid")

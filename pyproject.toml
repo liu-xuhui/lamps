@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "adamp"
+version = "0.1.0"
+description = "Adaptive minipatch feature selection."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [
+  { name = "AdaMP authors" },
+]
+dependencies = [
+  "numpy",
+]
+
+[tool.setuptools]
+package-dir = { "" = "adamp_package" }
+
+[tool.setuptools.packages.find]
+where = ["adamp_package"]
+include = ["adamp*"]

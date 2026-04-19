@@ -21,7 +21,7 @@ N1 <- 50
 
 max_iter <- 5
 
-permute <- 0L   # use the same name everywhere
+permute <- as.integer(Sys.getenv("ADAMP_PERMUTE", "0"))   # use the same name everywhere
 
 func_name <- "mr2"
 fit_funcs <- list(

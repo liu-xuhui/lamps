@@ -1,231 +1,184 @@
+# AdaMP
 
-# Environment Setup Instructions
+This repository contains the AdaMP feature-selection implementation and the
+experiment scripts used to reproduce the paper figures.
 
-This document describes how to create a reproducible Python environment for running the AdaMP simulations and generating the linear and nonlinear plots. All required Python dependencies are listed in `env/requirements.txt`, and the environment can be created automatically using the provided script `env/setup_venv.sh`.
+The installable Python package lives in `adamp_package/adamp` and is configured
+by `pyproject.toml`. The paper-reproduction code remains under `src/`,
+`experiments/`, `data/`, and `src/python_plotting/`.
 
-A copy of the required third-party package `stability_selection` is included inside the repository under  
-`src/python/adamp/third_party/stability_selection/`.  
-It is imported locally and does not require installation through pip.
+## Environment Setup
 
-No specific Python version is strictly required, but compatibility has been tested on Python versions 3.10 through 3.13.
+Create and activate a virtual environment:
 
----
-
-## Environment Setup (Windows Git Bash and macOS/Linux)
-
-The setup procedure is identical for Windows (Git Bash) and macOS/Linux. Users only need to ensure they are running commands either in **Git Bash** (Windows) or a **standard terminal** (macOS/Linux).
-
-### Step 1. Clone the repository
-
-```
-
-git clone <repository_url>
-cd <repository_directory>
-
-```
-
-### Step 2. Create a virtual environment
-
-```
-
+```bash
 python -m venv .venv
-
-```
-
-On macOS/Linux, if needed:
-
-```
-
-python3 -m venv .venv
-
-```
-
-### Step 3. Run the setup script
-
-```
-
-./env/setup_venv.sh
-
-```
-
-This script initializes the virtual environment, upgrades pip, and installs all required packages listed in `env/requirements.txt`.
-
-### Step 4. Activate the environment in future sessions
-
-Windows (Git Bash):
-
-```
-
-source .venv/Scripts/activate
-
-```
-
-macOS/Linux:
-
-```
-
 source .venv/bin/activate
-
 ```
 
----
+On Windows Git Bash:
 
-## Running Experiments and Generating Plots
-
-This repository contains code for running **linear** and **nonlinear** feature-selection experiments and reproducing all figures in the paper.
-
-All experiment scripts write **temporary simulation outputs** to the `temp_results/` directory. These are then aggregated into clean result files inside the `results/` directory, which are used for plotting.
-
----
-
-### 🔹 Nonlinear Experiments (Additive & Non-Additive)
-
-All nonlinear experiment scripts are located under:
-
-```
-experiments/nonlinear/additive/
-experiments/nonlinear/nonadditive/
+```bash
+python -m venv .venv
+source .venv/Scripts/activate
 ```
 
-Each folder contains scripts for all competing methods (AdaMP, HSIC-Lasso, Knockoff, MARS, SPAM).
+Install the Python package itself:
 
-#### Step 1 — Run the Simulation Scripts
-
-From either directory, run the desired experiment scripts. For example:
-
-```
-python experiments/nonlinear/additive/run_knockoff.py
-python experiments/nonlinear/additive/run_hsic.py
-Rscript experiments/nonlinear/additive/run_adamp.R
-...
+```bash
+pip install .
 ```
 
-Temporary results will be written to:
+This installs only the lightweight public AdaMP package and its required
+dependency, `numpy`.
 
-```
-temp_results/
-```
+For full paper reproduction, install the experiment dependencies:
 
-#### Step 2 — Summarize Results
-
-After simulations finish, summarize the temporary files:
-
-```
-python experiments/nonlinear/additive/summarize_result.py
+```bash
+pip install -r env/requirements.txt
 ```
 
-or
+Some experiments also require R packages. Install them with:
 
-```
-python experiments/nonlinear/nonadditive/summarize_result.py
-```
-
-This will generate aggregated result files under:
-
-```
-results/nonlinear/
+```bash
+Rscript env/R_packages.R
 ```
 
-#### Step 3 — Generate Figures
+The vendored `stability_selection` code remains under
+`src/python/adamp/third_party/stability_selection/` and does not need a separate
+pip install.
 
-Once the results are available, the following plotting scripts reproduce the **paper-ready figures exactly**:
+## Public Python Package
 
-```
-python src/python_plotting/make_nonlinear_additive_plots.py
-python src/python_plotting/make_nonlinear_nonadditive_plots.py
-python src/python_plotting/make_interaction_rate_plots.py
-```
-
-Figures will be saved automatically under the `results/` directory hierarchy.
-
----
-
-### 🔹 Linear Experiments
-
-Linear simulation scripts are located under:
-
-```
-experiments/linear/
-```
-
-After running the linear simulations and summarizing results, publication-ready figures are generated via:
-
-```
-python src/python_plotting/make_linear_plots.py
-```
-
-Output is written to:
-
-```
-results/linear/
-```
-
----
-
-### 🔹 Theory-Validation Experiments (Single-Seed Runs)
-
-The following scripts in `experiments/other/` run **one fixed random seed** to produce the datasets and outputs used in the theory-validation figures:
-
-```
-experiments/other/run_locomp_linear.py
-experiments/other/run_locosplit_linear.py
-experiments/other/run_one_linear.py
-experiments/other/run_one_nonlinear_additive.R
-```
-
----
-
-## Plot Generation (Summary)
-
-Four plotting utilities are provided under:
-
-```
-src/python_plotting/
-```
-
-These scripts read the processed results in `results/` and generate the figures used in the paper:
-
-* `make_linear_plots.py`
-* `make_nonlinear_additive_plots.py`
-* `make_nonlinear_nonadditive_plots.py`
-* `make_interaction_rate_plots.py`
-
-Before running the nonlinear plotting scripts, please set the following parameters inside the script:
+After `pip install .`, users can call AdaMP directly:
 
 ```python
-eval_metd    = "f1_score"     # "f1_score", "precision", or "recall"
-oracle       = 1              # 1 = oracle setting, 0 = non-oracle setting
-permute      = 1              # 1 = permuted correlation matrix, 0 = non-permuted
-basemodel    = "both"         # "marsbase", "spambase", or "both"
+from adamp import adamp_select
+
+selected = adamp_select(X, y)
 ```
 
-For the figures reported in the paper, we **always use**
->
-> ```
-> basemodel = "both"
-> ```
->
-so that results from both base models are combined.
+The public package is intentionally minimal. It is separate from the heavier
+paper-reproduction scripts.
 
-After setting these options, run the desired plotting script, e.g.:
+## Reproducing Paper Results
 
+Run commands from the repository root after activating the environment. The
+shell scripts below generate data, run methods, summarize temporary outputs, and
+create the corresponding publication figures.
+
+Temporary method outputs are written to `temp_results/`. Summarized result files
+and figures are written under `results/`.
+
+### Linear Simulation
+
+Main linear experiment and figure:
+
+```bash
+./experiments/linear/run_linear_experiment.sh
 ```
-python src/python_plotting/make_nonlinear_additive_plots.py
+
+Linear hyperparameter-tuning experiment and figure:
+
+```bash
+./experiments/linear/run_linear_hyperparameter_tuning.sh
 ```
 
-Figures will be written automatically into the appropriate sub-directory under:
+### Nonlinear Additive Simulation
 
+Main nonlinear additive experiment and figure:
+
+```bash
+./experiments/nonlinear/additive/run_nonlinear_additive.sh
 ```
-results/
+
+Nonlinear additive hyperparameter-tuning experiment and figure:
+
+```bash
+./experiments/nonlinear/additive/run_nonlinear_additive_hyperparameter_tuning.sh
 ```
-                                    
 
----
+### Nonlinear Nonadditive Simulation
 
-## Notes on Reproducibility
+Main nonlinear nonadditive interaction-rate experiment and figure:
 
-* All required Python code, including third-party components, is stored within the repository under `src/python/`.
-* The `.venv/` directory is intentionally excluded from version control. Each user must create their own environment.
-* Raw data under `data/` and generated results under `results/` are excluded from version control (except documentation placeholders).
-* Plotting scripts require that experiment output files already exist in the appropriate directory structure.
+```bash
+./experiments/nonlinear/nonadditive/run_nonlinear_nonadditive.sh
+```
 
+Nonlinear nonadditive hyperparameter-tuning interaction-rate experiment and
+figure:
+
+```bash
+./experiments/nonlinear/nonadditive/run_nonlinear_nonadditive_hyperparameter_tuning.sh
+```
+
+The nonadditive figure scripts use:
+
+```text
+src/python_plotting/make_interaction_rate_plots.py
+src/python_plotting/make_interaction_rate_hyperparam_tuning_plots.py
+```
+
+`src/python_plotting/make_nonlinear_nonadditive_plots.py` is not part of the
+current reproduction workflow.
+
+### Theory-Validation Figures
+
+LOCO split and LOCOMP:
+
+```bash
+./experiments/other/run_locosplit_locomp.sh
+```
+
+Single linear run and probability/delta epoch plots:
+
+```bash
+./experiments/other/run_one_linear.sh
+```
+
+To generate only one plot kind:
+
+```bash
+./experiments/other/run_one_linear.sh prob
+./experiments/other/run_one_linear.sh delta
+```
+
+### ROSMAP
+
+ROSMAP preprocessing, methods, plots, and frequency table:
+
+```bash
+./experiments/rosmap/run_rosmap_experiment.sh
+```
+
+### Riboflavin
+
+No shell wrapper is needed:
+
+```bash
+python experiments/riboflavin/run_riboflavin_experiment.py
+```
+
+## Script Parameters
+
+The reproducibility shell scripts set script parameters through environment
+variables:
+
+```text
+ADAMP_PERMUTE   0 or 1
+ADAMP_ORACLE    0 or 1
+ADAMP_PLOT_KIND prob or delta
+```
+
+Directly running individual scripts without these variables preserves their
+default values.
+
+## Notes
+
+- The shell scripts are intentionally long-running; many run full simulation
+  grids across multiple methods.
+- Python experiment dependencies are managed by `env/requirements.txt`.
+- R experiment dependencies are managed separately by `env/R_packages.R`.
+- The public pip package and the paper-reproduction code are intentionally kept
+  separate.

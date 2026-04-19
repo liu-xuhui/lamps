@@ -4,8 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-oracle = 0 # oracle must be 0
-permute = 1
+oracle = int(os.environ.get("ADAMP_ORACLE", "0")) # oracle must be 0
+permute = int(os.environ.get("ADAMP_PERMUTE", "1"))
 # "marsbase", "spambase", or "both"
 basemodel = "both"  # change to "spambase" or "marsbase" as needed
 

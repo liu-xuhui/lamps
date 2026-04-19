@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 # ---------------- user-configurable inputs ----------------
 eval_metd    = "precision"   # "f1_score" | "precision" | "recall"
 oracle       = 1            # must be 1 (placeholder in filenames)
-permute      = 0            # 1 = permute, 0 = nonpermute
+permute      = int(os.environ.get("ADAMP_PERMUTE", "0"))  # 1 = permute, 0 = nonpermute
 basemodel    = "linear"     # only option
 
 corr_list    = [0, 0.5, 0.9]

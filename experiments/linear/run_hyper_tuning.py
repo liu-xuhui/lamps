@@ -1,4 +1,5 @@
 import sys
+import os
 from pathlib import Path
 
 import numpy as np
@@ -25,7 +26,7 @@ max_iter = 5
 delta = 0.8
 
 # Fixed as requested
-permute = 0
+permute = int(os.environ.get("ADAMP_PERMUTE", "0"))
 corr = 0.5
 
 # Only linear base model
@@ -51,7 +52,7 @@ grid = [(nr, mr) for nr in n_ratio_list for mr in m_ratio_list]
 # ---------------------------------------------------------------------
 # Output dirs (as required)
 # ---------------------------------------------------------------------
-base_out_dir = ROOT / "temp_results" / "hyperparam_tuning" / "linear_corr0.5_permute0"
+base_out_dir = ROOT / "temp_results" / "hyperparam_tuning" / f"linear_corr0.5_permute{permute}"
 best_out_dir = base_out_dir / "best"
 grid_out_dir = base_out_dir / "grid"
 

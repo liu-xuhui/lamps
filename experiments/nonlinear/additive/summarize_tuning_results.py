@@ -12,10 +12,11 @@ snr_list = [0.5, 1, 2, 5]
 corr_list = [0, 0.5, 0.9]
 result_dict = {0.5:{}}
 folder = "temp_results/nonlinear/additive"
-hypertuning_folder = "temp_results/hyperparam_tuning/nonlinear_additive_corr0.5_permute0/best"
-hypertuning_folder_sp = "temp_results/hyperparam_tuning/nonlinear_sp_additive_corr0.5_permute0/best"
+permute_values = [int(os.environ.get("ADAMP_PERMUTE"))] if os.environ.get("ADAMP_PERMUTE") is not None else [0]
 
-for permute in [0]:
+for permute in permute_values:
+    hypertuning_folder = f"temp_results/hyperparam_tuning/nonlinear_additive_corr0.5_permute{permute}/best"
+    hypertuning_folder_sp = f"temp_results/hyperparam_tuning/nonlinear_sp_additive_corr0.5_permute{permute}/best"
     for oracle in [0]:
         for corr in corr_list:
             com_method_result_dict = {"adammars":{}, "adamspam":{}, "spam":{}, "mars":{}, "kf1":{}, "kf2":{}, "kf3":{}, "hsic":{}}

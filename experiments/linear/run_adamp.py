@@ -1,5 +1,6 @@
 
 import numpy as np
+import os
 import sys
 from pathlib import Path
 import pickle
@@ -38,7 +39,7 @@ snr_list = [5, 10, 20, 30, 40, 50, 60]
 number_signals = 10
 corr_list = [0, 0.5, 0.9]
 num_simus = 10
-permute = 0
+permute = int(os.environ.get("ADAMP_PERMUTE", "0"))
 
 total_iters = len(corr_list) * len(snr_list) * num_simus
 with tqdm(total=total_iters, desc="Total simulations") as pbar:
@@ -67,4 +68,3 @@ with tqdm(total=total_iters, desc="Total simulations") as pbar:
 
                 temp_df.to_csv(f"temp_results/linear/adamlinear_selected_corr{corr}_snr{snr}_permute{permute}_oracle{0}_rep{i}.csv")
                 pbar.update(1)
-

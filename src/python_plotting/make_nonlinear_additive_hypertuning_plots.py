@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 
 # ---------------- user-configurable inputs ----------------
 eval_metd    = "f1_score"  # "f1_score" | "precision" | "recall"
-oracle       = 0
-permute      = 0
+oracle       = int(os.environ.get("ADAMP_ORACLE", "0"))
+permute      = int(os.environ.get("ADAMP_PERMUTE", "0"))
 basemodel    = "both"  # "marsbase", "spambase", or "both"
 
 corr_list    = [0.5]       # keep ONE rho if you want ONE plot
@@ -308,4 +308,3 @@ os.makedirs(outdir, exist_ok=True)
 figpath = os.path.join(outdir, f"{eval_metd}_additive_{oracle_str}_{permute_str}_{basemodel}_rho{rho}.png")
 fig.savefig(figpath, bbox_inches="tight", bbox_extra_artists=(legend,))
 plt.show()
-

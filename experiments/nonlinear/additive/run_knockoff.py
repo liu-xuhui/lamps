@@ -1,4 +1,5 @@
 import numpy as np
+import os
 import pandas as pd
 from tqdm import tqdm
 import sys
@@ -14,7 +15,7 @@ from adamp.validation_methods import Konckoff_select
 num_simus = 10
 snr_list = [0.5, 1, 2, 5]
 corr_list = [0, 0.5, 0.9]
-permute = 0
+permute = int(os.environ.get("ADAMP_PERMUTE", "0"))
 oracle = 0 # oracle can only be 0
 
 total = len(snr_list) * num_simus * len(corr_list)
@@ -47,4 +48,3 @@ with tqdm(total=total, desc="Running simulations") as pbar:
 
                 pbar.update(1)
             
-

@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 
 
 eval_metd    = "recall"  # f1_score or precision or recall
-oracle       = 0
-permute      = 1
+oracle       = int(os.environ.get("ADAMP_ORACLE", "0"))
+permute      = int(os.environ.get("ADAMP_PERMUTE", "1"))
 # "marsbase", "spambase", or "both"
 basemodel    = "both"
 

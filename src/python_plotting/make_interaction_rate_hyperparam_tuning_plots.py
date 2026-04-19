@@ -4,8 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # ---------------- user-configurable inputs ----------------
-oracle   = 0  # oracle must be 0
-permute  = 0  # 1 = permute, 0 = nonpermute
+oracle   = int(os.environ.get("ADAMP_ORACLE", "0"))  # oracle must be 0
+permute  = int(os.environ.get("ADAMP_PERMUTE", "0"))  # 1 = permute, 0 = nonpermute
 basemodel = "both"  # "marsbase", "spambase", or "both"
 
 corr_list = [0.5]       # keep ONE rho if you want ONE plot

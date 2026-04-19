@@ -10,10 +10,6 @@ src_python = project_root / "src" / "python"
 sys.path.insert(0, str(src_python))
 
 
-# print(pd.read_csv("data/rosmap/rosmap_200.csv").iloc[:,1:].iloc[:, [12, 107, 129, 153]].columns)
-# print(pd.read_csv("results/rosmap/rosmap_adamp_nonoracle_mr.csv"))
-
-
 
 mr = pd.read_csv("results/rosmap/rosmap_adamp_nonoracle_mr.csv")
 

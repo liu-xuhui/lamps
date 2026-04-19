@@ -7,7 +7,7 @@ snr_list <- c(4,6,8,10)
 num_rep <- 30
 p = 50
 corr_list = c(0,0.5,0.9)
-permute = 0
+permute = as.integer(Sys.getenv("ADAMP_PERMUTE", "0"))
 oracle = 0 # mars can only have oracle = 0
 
 out_dir <- "temp_results/nonlinear/nonadditive/"

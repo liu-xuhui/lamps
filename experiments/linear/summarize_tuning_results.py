@@ -12,9 +12,10 @@ snr_list = [5, 10, 20, 30, 40, 50, 60]
 corr_list = [0, 0.5, 0.9]
 result_dict = {0.5:{}}
 folder = "temp_results/linear"
-hypertuning_folder = "temp_results/hyperparam_tuning/linear_corr0.5_permute0/best"
+permute_values = [int(os.environ.get("ADAMP_PERMUTE"))] if os.environ.get("ADAMP_PERMUTE") is not None else [0]
 
-for permute in [0]:
+for permute in permute_values:
+    hypertuning_folder = f"temp_results/hyperparam_tuning/linear_corr0.5_permute{permute}/best"
     for oracle in [1]:
         for corr in corr_list:
             com_method_result_dict = {"adamlinear":{}, "stability":{}, "ebic":{}, "lassocv":{}, "lassoor":{}, "cpss":{}, "elastic":{}, "elasticor":{}}

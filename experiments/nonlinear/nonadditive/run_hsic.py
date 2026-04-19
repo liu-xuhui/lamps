@@ -1,4 +1,5 @@
 import numpy as np
+import os
 import pandas as pd
 from tqdm import tqdm
 import sys
@@ -14,7 +15,7 @@ num_simus = 30
 num_signals = 10
 snr_list = [4, 6, 8, 10]
 corr_list = [0, 0.5, 0.9]
-permute = 0
+permute = int(os.environ.get("ADAMP_PERMUTE", "0"))
 oracle = 1 # oracle can only be 1
 
 total = len(snr_list) * num_simus * len(corr_list)
@@ -38,4 +39,3 @@ with tqdm(total=total, desc="Running simulations") as pbar:
                 
                 pbar.update(1)
             
-

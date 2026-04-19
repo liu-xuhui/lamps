@@ -1,12 +1,12 @@
 import pickle
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-# TODO: Add corr as user input setting
 
 # User input
 corr = 0.9
-plot_kind = "prob"   # "delta" or "prob"
+plot_kind = os.environ.get("ADAMP_PLOT_KIND", "prob")   # "delta" or "prob"
 
 with open(f"results/other/one_linear_corr{corr}_experiment_res.pkl", "rb") as f:
     res = pickle.load(f)
@@ -115,4 +115,3 @@ for idx, arr in enumerate(arr_list):
 fig.tight_layout()
 fig.savefig(out_fname, bbox_inches="tight")
 plt.show()
-

@@ -62,8 +62,8 @@ oracle_choose_k <- function(lambda_vec, func_norm, target = 10) {
 }
 
 
-oracle <- 1
-permute <- 1
+oracle <- as.integer(Sys.getenv("ADAMP_ORACLE", "1"))
+permute <- as.integer(Sys.getenv("ADAMP_PERMUTE", "1"))
 snr_list <- c(4,6,8,10)
 num_rep <- 30
 p = 50
@@ -120,4 +120,3 @@ for (j in seq_along(corr_list)) {
 
   }
 }
-
