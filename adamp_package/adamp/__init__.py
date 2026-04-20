@@ -13,6 +13,13 @@ from .core import (
     predictMP_indept,
     adamp_select,
 )
+from .simulation_functions import (
+    SimuFriedmanAdditive,
+    SimuFriedmanNonAdditive,
+    SimuLinear,
+    SimuLinear_old,
+    SimuLinear_sparsity,
+)
 
 __all__ = [
     "MPRegFeatureScore_indept",
@@ -26,6 +33,11 @@ __all__ = [
     "linear_regression_fit",
     "predictMP_indept",
     "adamp_select",
+    "SimuFriedmanAdditive",
+    "SimuFriedmanNonAdditive",
+    "SimuLinear",
+    "SimuLinear_old",
+    "SimuLinear_sparsity",
 ]
 
 __version__ = "0.1.0"

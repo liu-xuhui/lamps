@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import itertools
 import sys
 
 import numpy as np
@@ -62,6 +63,19 @@ def _progress_bar(epoch, max_iter, completed, total, width=10, stream=None):
     filled = min(width, max(0, filled))
     bar = "#" * filled + "-" * (width - filled)
     stream.write(f"\rEpoch {epoch + 1}/{max_iter} K [{bar}] {completed}/{total}")
+    stream.flush()
+    if completed >= total:
+        stream.write("\n")
+        stream.flush()
+
+
+def _hyperparameter_progress_bar(completed, total, width=20, stream=None):
+    if stream is None:
+        stream = sys.stderr
+    filled = int(np.floor(width * completed / total)) if total else width
+    filled = min(width, max(0, filled))
+    bar = "#" * filled + "-" * (width - filled)
+    stream.write(f"\rHyperparameter tuning [{bar}] {completed}/{total} sets")
     stream.flush()
     if completed >= total:
         stream.write("\n")
@@ -216,6 +230,14 @@ def last_epoch_key(res):
     return next(reversed(res))
 
 
+def extract_final_loo(res):
+    last_k = last_epoch_key(res)
+    loo = res[last_k].get("loo", None)
+    if loo is None:
+        raise RuntimeError("Could not extract final LOO from res[epoch]['loo'].")
+    return float(loo)
+
+
 def extract_selected_features_nonoracle(res, delta=0.8):
     last_k = last_epoch_key(res) - 1
     if last_k < 0:
@@ -236,6 +258,34 @@ def _coerce_K_list(K, n_ratio, m_ratio, max_iter):
     if len(K) < max_iter:
         raise ValueError("K must be None, a scalar, length 1, or length >= max_iter.")
     return [int(k) for k in K[:max_iter]]
+
+
+def _is_tuning_list(value):
+    return isinstance(value, list)
+
+
+def _coerce_grid_values(name, value, default=None):
+    is_grid = _is_tuning_list(value)
+    values = value if is_grid else [value]
+    if len(values) == 0:
+        raise ValueError(f"{name} list must contain at least one value.")
+    if name == "fit_func":
+        values = [default if fit_func is None else fit_func for fit_func in values]
+        bad_values = [fit_func for fit_func in values if not callable(fit_func)]
+        if bad_values:
+            raise TypeError("fit_func values must be callable or None.")
+    return values, is_grid
+
+
+def _fit_func_label(fit_func):
+    name = getattr(fit_func, "__name__", None)
+    if name:
+        return name
+    wrapped_func = getattr(fit_func, "func", None)
+    wrapped_name = getattr(wrapped_func, "__name__", None)
+    if wrapped_name:
+        return wrapped_name
+    return fit_func.__class__.__name__
 
 
 def _run_adamp(
@@ -348,16 +398,89 @@ def adamp_select(
     fit_func
         Callable with signature ``fit_func(X_train, y_train, X_predict)``. If
         omitted, a dependency-free least-squares linear regression is used.
+        May also be a list of callables for hyperparameter tuning.
+    n_ratio, m_ratio, delta
+        Scalars for a single AdaMP run, or lists for grid-search tuning.
     return_complete_info
         If False, return selected feature indices. If True, return
-        ``(selected_features, res)``.
+        ``(selected_features, res)``. When any of ``n_ratio``, ``m_ratio``,
+        ``fit_func``, or ``delta`` is a list, tuning is run before applying
+        the same return rule.
     """
     if fit_func is None:
         fit_func = linear_regression_fit
 
+    n_ratio_values, n_ratio_is_grid = _coerce_grid_values("n_ratio", n_ratio)
+    m_ratio_values, m_ratio_is_grid = _coerce_grid_values("m_ratio", m_ratio)
+    fit_func_values, fit_func_is_grid = _coerce_grid_values(
+        "fit_func", fit_func, default=linear_regression_fit
+    )
+    delta_values, delta_is_grid = _coerce_grid_values("delta", delta)
+    tune_hyperparameters = any(
+        [n_ratio_is_grid, m_ratio_is_grid, fit_func_is_grid, delta_is_grid]
+    )
+
+    X = np.asarray(X)
+    Y = np.asarray(Y)
+
+    if tune_hyperparameters:
+        grid = list(
+            itertools.product(
+                n_ratio_values, m_ratio_values, fit_func_values, delta_values
+            )
+        )
+        best_loo = np.inf
+        best_selected = None
+        best_res = None
+        best_params = None
+
+        for completed, (cur_n_ratio, cur_m_ratio, cur_fit_func, cur_delta) in enumerate(
+            grid, start=1
+        ):
+            res = _run_adamp(
+                X=X,
+                Y=Y,
+                n_ratio=cur_n_ratio,
+                m_ratio=cur_m_ratio,
+                K=K,
+                fit_func=cur_fit_func,
+                delta=cur_delta,
+                max_iter=max_iter,
+                early_stop=early_stop,
+                seed=seed,
+                show_progress=show_progress,
+            )
+            loo_final = extract_final_loo(res)
+            selected = extract_selected_features_nonoracle(res, delta=cur_delta)
+
+            if np.isfinite(loo_final) and loo_final < best_loo:
+                best_loo = loo_final
+                best_selected = selected
+                best_res = res
+                best_params = (cur_n_ratio, cur_m_ratio, cur_fit_func, cur_delta)
+
+            if show_progress:
+                _hyperparameter_progress_bar(completed, len(grid))
+
+        if best_res is None:
+            raise RuntimeError("No finite final LOO value was found during tuning.")
+
+        best_n_ratio, best_m_ratio, best_fit_func, best_delta = best_params
+        print(
+            "Best hyperparameters: "
+            f"n_ratio={best_n_ratio}, "
+            f"m_ratio={best_m_ratio}, "
+            f"fit_func={_fit_func_label(best_fit_func)}, "
+            f"delta={best_delta}, "
+            f"last_epoch_LOO={best_loo}"
+        )
+        if return_complete_info:
+            return best_selected, best_res
+        return best_selected
+
     res = _run_adamp(
-        X=np.asarray(X),
-        Y=np.asarray(Y),
+        X=X,
+        Y=Y,
         n_ratio=n_ratio,
         m_ratio=m_ratio,
         K=K,

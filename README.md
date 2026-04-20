@@ -58,6 +58,45 @@ from adamp import adamp_select
 selected = adamp_select(X, y)
 ```
 
+Hyperparameter tuning is available by passing a Python list for any of
+`n_ratio`, `m_ratio`, `fit_func`, or `delta`. AdaMP will grid-search all
+combinations, choose the run with the lowest final-epoch leave-one-out error,
+show tuning progress, and print the best hyperparameters.
+
+```python
+selected = adamp_select(
+    X,
+    y,
+    n_ratio=[0.3, 0.4, 0.5],
+    m_ratio=[0.1, 0.15, 0.2],
+    delta=[0.7, 0.8],
+)
+```
+
+The same list interface works for model functions. Each function should use
+the signature `fit_func(X_train, y_train, X_predict)`:
+
+```python
+selected = adamp_select(
+    X,
+    y,
+    fit_func=[linear_fit, ridge_fit],
+)
+```
+
+To inspect the result dictionary from the best hyperparameter setting, set
+`return_complete_info=True`:
+
+```python
+selected, res = adamp_select(
+    X,
+    y,
+    n_ratio=[0.4, 0.5],
+    m_ratio=[0.1, 0.2],
+    return_complete_info=True,
+)
+```
+
 The public package is intentionally minimal. It is separate from the heavier
 paper-reproduction scripts.
 

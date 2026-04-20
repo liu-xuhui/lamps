@@ -6,6 +6,7 @@ venv/
 # env/
 # ENV/
 *.egg-info/
+build/
 
 # Do NOT ignore our env/ folder that contains requirements & setup scripts
 !env/requirements.txt
