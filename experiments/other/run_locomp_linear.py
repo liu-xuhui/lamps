@@ -3,6 +3,7 @@ from pathlib import Path
 import pickle
 import numpy as np
 import pandas as pd
+from sklearn.preprocessing import StandardScaler
 
 # Add src/python to PYTHONPATH
 ROOT = Path(__file__).resolve().parents[2]
@@ -46,6 +47,9 @@ X = df.iloc[:,:500].to_numpy()
 Y = df["Y"].values
 
 _, _, X1, Y1 = SimuLinear(N, M, N1, snr = snr, seed = 111, corr = corr, permute = False)
+
+scaler = StandardScaler()
+Y = scaler.fit_transform(Y.reshape(-1, 1))
 
 np.random.seed(110+rep)
 
