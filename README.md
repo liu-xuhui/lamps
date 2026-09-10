@@ -1,6 +1,6 @@
-# AdaMP
+# LAMPS
 
-This repository contains the AdaMP feature-selection implementation and the
+This repository contains the LAMPS feature-selection implementation and the
 experiment scripts used to reproduce the paper figures.
 
 The installable Python package lives in `adamp_package/adamp` and is configured
@@ -29,7 +29,7 @@ Install the Python package itself:
 pip install .
 ```
 
-This installs only the lightweight public AdaMP package and its required
+This installs only the lightweight public LAMPS package and its required
 dependency, `numpy`.
 
 For full paper reproduction, install the experiment dependencies:
@@ -168,6 +168,12 @@ LOCO split and LOCOMP:
 
 ```bash
 ./experiments/other/run_locosplit_locomp.sh
+```
+
+Correlated theory validation probability/delta epoch plots:
+
+```bash
+./experiments/correlated_theory/run_correlated_experiment_and_plot.py
 ```
 
 Single linear run and probability/delta epoch plots:

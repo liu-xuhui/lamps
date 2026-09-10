@@ -65,8 +65,10 @@ method_styles = {
     "Stability Selection":      {"color": "#596780",  "marker": "s", "lw": 1.6},
     "Lasso-eBIC":           {"color": "#7AA6DC",  "marker": "x", "lw": 1.6},
     "Lasso-CV":       {"color": "#9CCB86",  "marker": "<", "lw": 1.6},
+    "Lasso-OR":       {"color": "#DBA159",  "marker": ">", "lw": 1.6},
     "CPSS":           {"color": "#B57BA6",  "marker": "v", "lw": 1.6},
     "ElasticNet-CV":     {"color": "#888888",  "marker": "*", "lw": 1.6},
+    "ElasticNet-OR":  {"color": "#AA4499",  "marker": "D", "lw": 1.6},
 }
 
 # 1×3 grid over correlations; shared Y, one legend
@@ -83,8 +85,10 @@ for j, rho in enumerate(corr_list):
     met_Stab   = {snr: [] for snr in snr_list}
     met_eBIC   = {snr: [] for snr in snr_list}
     met_LCV    = {snr: [] for snr in snr_list}
+    met_LOR    = {snr: [] for snr in snr_list}
     met_CPSS   = {snr: [] for snr in snr_list}
     met_EN     = {snr: [] for snr in snr_list}
+    met_ENOR   = {snr: [] for snr in snr_list}
 
     # loop through SNRs and seeds (all linear methods assumed 0-based indexing for signals)
     for snr in snr_list:
@@ -109,6 +113,11 @@ for j, rho in enumerate(corr_list):
             met_LCV[snr].append(
                 compute_f1_score(lcv_select, M, list(range(number_signals)))[eval_metd]
             )
+            # Lasso-OR
+            lor_select = com_method_result_dict["lassoor"][snr][i]
+            met_LOR[snr].append(
+                compute_f1_score(lor_select, M, list(range(number_signals)))[eval_metd]
+            )
             # CPSS
             cpss_select = com_method_result_dict["cpss"][snr][i]
             met_CPSS[snr].append(
@@ -118,6 +127,11 @@ for j, rho in enumerate(corr_list):
             en_select = com_method_result_dict["elastic"][snr][i]
             met_EN[snr].append(
                 compute_f1_score(en_select, M, list(range(number_signals)))[eval_metd]
+            )
+            # ElasticNet-OR
+            enor_select = com_method_result_dict["elasticor"][snr][i]
+            met_ENOR[snr].append(
+                compute_f1_score(enor_select, M, list(range(number_signals)))[eval_metd]
             )
 
     # helper: mean & SE arrays in SNR order
@@ -131,8 +145,10 @@ for j, rho in enumerate(corr_list):
         "Stability Selection":      mean_se(met_Stab),
         "Lasso-eBIC":           mean_se(met_eBIC),
         "Lasso-CV":       mean_se(met_LCV),
+        "Lasso-OR":       mean_se(met_LOR),
         "CPSS":           mean_se(met_CPSS),
         "ElasticNet-CV":     mean_se(met_EN),
+        "ElasticNet-OR":  mean_se(met_ENOR),
     }
 
     ax = axes[j]
@@ -176,6 +192,6 @@ fig.subplots_adjust(bottom=0.25, top=0.9, wspace=0.1)
 # Save
 outdir = "results/linear"
 os.makedirs(outdir, exist_ok=True)
-figpath = os.path.join(outdir, f"{eval_metd}_{oracle_str}_{permute_str}_{basemodel}_new.png")
+figpath = os.path.join(outdir, f"{eval_metd}_{oracle_str}_{permute_str}_{basemodel}_supp.png")
 fig.savefig(figpath, bbox_inches="tight")
 plt.show()

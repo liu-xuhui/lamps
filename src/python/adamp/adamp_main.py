@@ -57,33 +57,6 @@ def MPRegFeatureScore_indept(X,Y,X1,Y1,n_ratio,m_ratio,K,fit_func,prob_I,prob_F,
     mse_train = np.mean((Y-predictions_train.mean(0))**2)
     mse_test = np.mean((Y1-predictions_test.mean(0))**2)
 
-    # #############################
-    # ## Find LOO
-    # ##############_train##############
-    # ######## b_keep gives length N Series; the ith item includes the MP indices that exclude sample i
-    # b_keep = pd.DataFrame(~in_mp_obs).apply(lambda i: np.array(i[i].index))
-    # ####### absolute error function; compute LOO
-    # # resids_LOO = list(map(lambda i: np.abs(Y[i] - predictions_train[b_keep[i],i].mean()),range(N)))
-    # resids_LOO = list(map(lambda i: (np.abs(Y[i] - predictions_train[b_keep[i],i].mean()))**2,range(N)))
-
-    # LOO_sd = np.array(list(map(lambda i: predictions_train[b_keep[i],i].std(),range(N)))).mean()
-    # LOO_mean = np.array(list(map(lambda i: predictions_train[b_keep[i],i].mean(),range(N)))).mean()
-
-    # ################################
-    # ######## FIND LOCO_LOO of
-    # #############################
-    
-    # results = Parallel(n_jobs=-1,backend="loky",batch_size=1)(delayed(get_loco)(i,j,in_mp_feature,in_mp_obs,predictions_train) for i in range(N) for j in range(M))
-    # ####### ress includes all the LOCO_LOO residuals
-    # ress = pd.DataFrame(results)
-    # ress['i'] = np.repeat(range(N),M)
-    # ress['j'] = np.tile(range(M),N)
-    # ress['true_y'] = np.repeat(Y,M)
-
-    # ress['resid_loco'] =(np.abs(ress['true_y'] - ress[0]))**2
-    # ress['resid_loo'] = np.repeat(resids_LOO,M)
-    # ress['zz'] = ress['resid_loco'] -ress['resid_loo']
-
 
     # Delta = np.zeros((M,));
     # for j in range(M):
@@ -181,16 +154,6 @@ def indept_weight_sample_epochtuned(X,Y,X1,Y1,n_ratio,m_ratio,K,fit_func,delta,m
 
     while kk < max_iter:
         res[kk]=MPRegFeatureScore_indept(X,Y,X1,Y1,n_ratio,m_ratio,K_list[kk],fit_func,prob_I,prob_F,delta,rng=rng)
-        # if kk > 0:
-        #    if res[kk]["loo"] >= res[kk-1]["loo"]:
-        #       res.popitem()
-        #       break
-        # print(res[kk]["loo"])
-           
-        # if kk > 0:
-        #    if res[kk]["loo"] >= 0.9*res[kk-1]["loo"]:
-        #       res.popitem()
-        #       break
 
         if kk > 0:
             cur = res[kk]

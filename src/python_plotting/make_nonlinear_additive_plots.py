@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 
 
 eval_metd    = "recall"  # f1_score or precision or recall
-oracle       = int(os.environ.get("ADAMP_ORACLE", "0"))
-permute      = int(os.environ.get("ADAMP_PERMUTE", "1"))
+oracle       = 1
+permute      = 1
 # "marsbase", "spambase", or "both"
 basemodel    = "both"
 
@@ -23,11 +23,16 @@ y_label = f"Feature-Selection {metric_name_map.get(eval_metd, eval_metd.title())
 oracle_str  = "oracle"    if oracle  else "nonoracle"
 permute_str = "permute"   if permute else "nonpermute"
 
-title_label = (
-    f"Nonlinear Additive — Feature-Selection "
-    f"{metric_name_map.get(eval_metd, eval_metd.title())} vs. SNR "
-    f"{oracle_str} {permute_str}"
-)
+# title_label = (
+#     f"Nonlinear Additive — Feature-Selection "
+#     f"{metric_name_map.get(eval_metd, eval_metd.title())} vs. SNR "
+#     f"{oracle_str} {permute_str}"
+# )
+
+if permute == 0:
+    title_label = "Nonlinear Additive Model: Correlated Setting 1"
+else:
+    title_label = "Nonlinear Additive Model: Correlated Setting 2"
 
 snr_list        = [0.5, 1, 2, 5]
 num_simus       = 10
@@ -63,10 +68,10 @@ def compute_f1_score(selected_features, total_features=500, signal_features=list
 
 
 plt.rcParams.update({
-    "font.size": 11,
+    "font.size": 12,
     "axes.titlesize": 12,
     "axes.labelsize": 12,
-    "legend.fontsize": 10,
+    "legend.fontsize": 12,
     "xtick.labelsize": 11,
     "ytick.labelsize": 11,
     "figure.dpi": 120,
@@ -81,22 +86,22 @@ if oracle:
     # Colors/markers (AdaMP highlighted)
     if basemodel == "marsbase":
         method_styles = {
-            "AdaMP (marsbase)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
+            "LAMPS (MARS)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
             "HSIC Lasso":       {"color": "#596780",   "marker": "s", "lw": 1.6},
-            "spAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
+            "SpAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
         }
     elif basemodel == "spambase":
         method_styles = {
-            "AdaMP (spambase)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
+            "LAMPS (SpAM)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
             "HSIC Lasso":       {"color": "#596780",   "marker": "s", "lw": 1.6},
-            "spAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
+            "SpAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
         }
     else:  # basemodel == "both"
         method_styles = {
-            "AdaMP (marsbase)":  {"color": "#D7191C",  "marker": "o", "lw": 2.4, "zorder": 5},
-            "AdaMP (spambase)":  {"color": "#2C7BB6",  "marker": "D", "lw": 2.4, "zorder": 4},
+            "LAMPS (MARS)":  {"color": "#D7191C",  "marker": "o", "lw": 2.4, "zorder": 5},
+            "LAMPS (SpAM)":  {"color": "#2C7BB6",  "marker": "D", "lw": 2.4, "zorder": 4},
             "HSIC Lasso":        {"color": "#596780",  "marker": "s", "lw": 1.6},
-            "spAM":              {"color": "#B57BA6",  "marker": "v", "lw": 1.6},
+            "SpAM":              {"color": "#B57BA6",  "marker": "v", "lw": 1.6},
         }
 
     fig, axes = plt.subplots(1, 3, figsize=(13.5, 4.6), sharey=True, constrained_layout=False)
@@ -166,22 +171,22 @@ if oracle:
 
         if basemodel == "marsbase":
             method_to_data = {
-                "AdaMP (marsbase)": mean_se(f1_AdaMP),
+                "LAMPS (MARS)": mean_se(f1_AdaMP),
                 "HSIC Lasso":       mean_se(f1_HSIC),
-                "spAM":             mean_se(f1_SPAM),
+                "SpAM":             mean_se(f1_SPAM),
             }
         elif basemodel == "spambase":
             method_to_data = {
-                "AdaMP (spambase)": mean_se(f1_AdaMP),
+                "AdaMP (SpAM)": mean_se(f1_AdaMP),
                 "HSIC Lasso":       mean_se(f1_HSIC),
-                "spAM":             mean_se(f1_SPAM),
+                "SpAM":             mean_se(f1_SPAM),
             }
         else:  # both
             method_to_data = {
-                "AdaMP (marsbase)":  mean_se(f1_AdaMP_mars),
-                "AdaMP (spambase)":  mean_se(f1_AdaMP_spam),
+                "LAMPS (MARS)":  mean_se(f1_AdaMP_mars),
+                "LAMPS (SpAM)":  mean_se(f1_AdaMP_spam),
                 "HSIC Lasso":        mean_se(f1_HSIC),
-                "spAM":              mean_se(f1_SPAM),
+                "SpAM":              mean_se(f1_SPAM),
             }
 
         ax = axes[j]
@@ -238,34 +243,39 @@ if oracle:
 # NON-ORACLE BRANCH
 # ----------------------------------------------------------
 else:
+    legend_name_map = {
+    "Knockoffs_fdr01": r"Knockoffs ($\alpha=0.1$)",
+    "Knockoffs_fdr02": r"Knockoffs ($\alpha=0.2$)",
+    "Knockoffs_fdr03": r"Knockoffs ($\alpha=0.3$)",
+    }
 
     # Colors/markers (AdaMP highlighted)
     if basemodel == "marsbase":
         method_styles = {
-            "AdaMP (marsbase)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
+            "LAMPS (MARS)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
             "Knockoffs_fdr01":  {"color": "#7AA6DC",   "marker": "x", "lw": 1.6},
             "Knockoffs_fdr02":  {"color": "#9CCB86",   "marker": "<", "lw": 1.6},
             "Knockoffs_fdr03":  {"color": "#DBA159",   "marker": ">", "lw": 1.6},
-            "spAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
+            "SpAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
             "MARS":             {"color": "#888888",   "marker": "*", "lw": 1.6},
         }
     elif basemodel == "spambase":
         method_styles = {
-            "AdaMP (spambase)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
+            "LAMPS (SpAM)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
             "Knockoffs_fdr01":  {"color": "#7AA6DC",   "marker": "x", "lw": 1.6},
             "Knockoffs_fdr02":  {"color": "#9CCB86",   "marker": "<", "lw": 1.6},
             "Knockoffs_fdr03":  {"color": "#DBA159",   "marker": ">", "lw": 1.6},
-            "spAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
+            "SpAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
             "MARS":             {"color": "#888888",   "marker": "*", "lw": 1.6},
         }
     else:  # basemodel == "both"
         method_styles = {
-            "AdaMP (marsbase)": {"color": "#D7191C",   "marker": "o", "lw": 2.4, "zorder": 5},
-            "AdaMP (spambase)": {"color": "#2C7BB6",   "marker": "D", "lw": 2.4, "zorder": 4},
+            "LAMPS (MARS)": {"color": "#D7191C",   "marker": "o", "lw": 2.4, "zorder": 5},
+            "LAMPS (SpAM)": {"color": "#2C7BB6",   "marker": "D", "lw": 2.4, "zorder": 4},
             "Knockoffs_fdr01":  {"color": "#7AA6DC",   "marker": "x", "lw": 1.6},
             "Knockoffs_fdr02":  {"color": "#9CCB86",   "marker": "<", "lw": 1.6},
             "Knockoffs_fdr03":  {"color": "#DBA159",   "marker": ">", "lw": 1.6},
-            "spAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
+            "SpAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
             "MARS":             {"color": "#888888",   "marker": "*", "lw": 1.6},
         }
 
@@ -354,30 +364,30 @@ else:
 
         if basemodel == "marsbase":
             method_to_data = {
-                "AdaMP (marsbase)": mean_se(f1_AdaMP),
+                "LAMPS (MARS)": mean_se(f1_AdaMP),
                 "Knockoffs_fdr01":  mean_se(f1_KF01),
                 "Knockoffs_fdr02":  mean_se(f1_KF02),
                 "Knockoffs_fdr03":  mean_se(f1_KF03),
-                "spAM":             mean_se(f1_SPAM),
+                "SpAM":             mean_se(f1_SPAM),
                 "MARS":             mean_se(f1_MARS),
             }
         elif basemodel == "spambase":
             method_to_data = {
-                "AdaMP (spambase)": mean_se(f1_AdaMP),
+                "LAMPS (SpAM)": mean_se(f1_AdaMP),
                 "Knockoffs_fdr01":  mean_se(f1_KF01),
                 "Knockoffs_fdr02":  mean_se(f1_KF02),
                 "Knockoffs_fdr03":  mean_se(f1_KF03),
-                "spAM":             mean_se(f1_SPAM),
+                "SpAM":             mean_se(f1_SPAM),
                 "MARS":             mean_se(f1_MARS),
             }
         else:  # both
             method_to_data = {
-                "AdaMP (marsbase)": mean_se(f1_AdaMP_mars),
-                "AdaMP (spambase)": mean_se(f1_AdaMP_spam),
+                "LAMPS (MARS)": mean_se(f1_AdaMP_mars),
+                "LAMPS (SpAM)": mean_se(f1_AdaMP_spam),
                 "Knockoffs_fdr01":  mean_se(f1_KF01),
                 "Knockoffs_fdr02":  mean_se(f1_KF02),
                 "Knockoffs_fdr03":  mean_se(f1_KF03),
-                "spAM":             mean_se(f1_SPAM),
+                "SpAM":             mean_se(f1_SPAM),
                 "MARS":             mean_se(f1_MARS),
             }
 
@@ -385,17 +395,31 @@ else:
         handles = []
         labels  = []
 
+        # for name, (means, ses) in method_to_data.items():
+        #     style = method_styles[name]
+        #     h = ax.errorbar(
+        #         snr_list, means, yerr=ses, fmt=style["marker"] + "-",
+        #         linewidth=style.get("lw", 1.6), markersize=6,
+        #         color=style["color"], capsize=3, elinewidth=1.0,
+        #         zorder=style.get("zorder", 3), label=name
+        #     )
+        #     if j == 0:
+        #         handles.append(h)
+        #         labels.append(name)
         for name, (means, ses) in method_to_data.items():
             style = method_styles[name]
+
+            display_name = legend_name_map.get(name, name)
+
             h = ax.errorbar(
                 snr_list, means, yerr=ses, fmt=style["marker"] + "-",
                 linewidth=style.get("lw", 1.6), markersize=6,
                 color=style["color"], capsize=3, elinewidth=1.0,
-                zorder=style.get("zorder", 3), label=name
+                zorder=style.get("zorder", 3), label=display_name
             )
             if j == 0:
                 handles.append(h)
-                labels.append(name)
+                labels.append(display_name)
 
         ax.set_xlabel("SNR")
         if j == 0:

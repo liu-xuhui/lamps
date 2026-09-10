@@ -33,12 +33,13 @@ def _read_mse_csv(path: str, method_name: str) -> pd.DataFrame:
 
 def main():
     # Working directory (repo root): C:\Users\95815\Desktop\research\adamp
-    repo_root = r"C:\Users\95815\Desktop\research\adamp"
+    repo_root = r"/home/xul9527/adamp_experiment"
 
     # Input CSVs
     adamp_path = os.path.join(repo_root, "results", "rosmap", "test_mse_adamp_mr.csv")
     hsic_path  = os.path.join(repo_root, "results", "rosmap", "test_mse_hsic.csv")
     lasso_path = os.path.join(repo_root, "results", "rosmap", "test_mse_lasso.csv")
+    spam_path = os.path.join(repo_root, "results", "rosmap", "test_mse_spam.csv")
 
     # Output
     outdir = os.path.join(repo_root, "results", "rosmap")
@@ -46,16 +47,17 @@ def main():
     outpath = os.path.join(outdir, "rosmap_mse_vs_K.png")
 
     # Read
-    df_adamp = _read_mse_csv(adamp_path, "AdaMP (marsbase)")
+    df_adamp = _read_mse_csv(adamp_path, "LAMPS (MARS)")
     df_hsic  = _read_mse_csv(hsic_path,  "HSIC")
     df_lasso = _read_mse_csv(lasso_path, "Lasso")
+    df_spam = _read_mse_csv(spam_path, "SpAM")
 
     # -------- Plot --------
     plt.rcParams.update({
-        "font.size": 11,
+        "font.size": 12,
         "axes.titlesize": 12,
         "axes.labelsize": 12,
-        "legend.fontsize": 10,
+        "legend.fontsize": 12,
         "xtick.labelsize": 11,
         "ytick.labelsize": 11,
         "figure.dpi": 120,
@@ -66,12 +68,13 @@ def main():
 
     # Styling (kept consistent with your other plots)
     styles = {
-        "AdaMP (marsbase)": dict(marker="o", lw=2.2, zorder=4),
+        "LAMPS (MARS)": dict(marker="o", lw=2.2, zorder=4),
         "HSIC":             dict(marker="s", lw=1.8, zorder=3),
         "Lasso":            dict(marker="^", lw=1.8, zorder=2),
+        "SpAM":            dict(marker="x", lw=1.8, zorder=1),
     }
 
-    for df in (df_adamp, df_hsic, df_lasso):
+    for df in (df_adamp, df_hsic, df_lasso, df_spam):
         name = df["method"].iloc[0]
         st = styles.get(name, {})
         ax.errorbar(

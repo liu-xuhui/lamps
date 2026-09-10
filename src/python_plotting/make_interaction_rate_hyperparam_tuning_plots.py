@@ -4,8 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # ---------------- user-configurable inputs ----------------
-oracle   = int(os.environ.get("ADAMP_ORACLE", "0"))  # oracle must be 0
-permute  = int(os.environ.get("ADAMP_PERMUTE", "0"))  # 1 = permute, 0 = nonpermute
+oracle   = 0  # oracle must be 0
+permute  = 0  # 1 = permute, 0 = nonpermute
 basemodel = "both"  # "marsbase", "spambase", or "both"
 
 corr_list = [0.5]       # keep ONE rho if you want ONE plot
@@ -23,10 +23,12 @@ y_label = "Both-Interaction Selection (%)"
 oracle_str  = "oracle"    if oracle == 1  else "nonoracle"
 permute_str = "permute"   if permute == 1 else "nonpermute"
 
-title_label = (
-    "Nonlinear Nonadditive — Rate of Selecting Both Interaction Features Hyperparam Tuning "
-    f"vs. Interaction SNR {permute_str}"
-)
+# title_label = (
+#     "Nonlinear Nonadditive — Rate of Selecting Both Interaction Features Hyperparam Tuning "
+#     f"vs. Interaction SNR {permute_str}"
+# )
+
+title_label = "Interaction Model Data-driven tuning"
 
 # Load result dict
 with open(
@@ -52,32 +54,38 @@ plt.rcParams.update({
 # ----------------------------------------------------------
 # Method styles (AdaMP highlighted)
 # ----------------------------------------------------------
+legend_name_map = {
+    "Knockoffs_fdr01": r"Knockoffs ($\alpha=0.1$)",
+    "Knockoffs_fdr02": r"Knockoffs ($\alpha=0.2$)",
+    "Knockoffs_fdr03": r"Knockoffs ($\alpha=0.3$)",
+}
+
 if basemodel == "marsbase":
     method_styles = {
-        "AdaMP (marsbase)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
+        "LAMPS (MARS)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
         "Knockoffs_fdr01":  {"color": "#7AA6DC",   "marker": "x", "lw": 1.6},
         "Knockoffs_fdr02":  {"color": "#9CCB86",   "marker": "<", "lw": 1.6},
         "Knockoffs_fdr03":  {"color": "#DBA159",   "marker": ">", "lw": 1.6},
-        "spAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
+        "SpAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
         "MARS":             {"color": "#888888",   "marker": "*", "lw": 1.6},
     }
 elif basemodel == "spambase":
     method_styles = {
-        "AdaMP (spambase)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
+        "LAMPS (SpAM)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
         "Knockoffs_fdr01":  {"color": "#7AA6DC",   "marker": "x", "lw": 1.6},
         "Knockoffs_fdr02":  {"color": "#9CCB86",   "marker": "<", "lw": 1.6},
         "Knockoffs_fdr03":  {"color": "#DBA159",   "marker": ">", "lw": 1.6},
-        "spAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
+        "SpAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
         "MARS":             {"color": "#888888",   "marker": "*", "lw": 1.6},
     }
 else:  # basemodel == "both"
     method_styles = {
-        "AdaMP (marsbase)": {"color": "#D7191C",   "marker": "o", "lw": 2.4, "zorder": 5},
-        "AdaMP (spambase)": {"color": "#2C7BB6",   "marker": "D", "lw": 2.4, "zorder": 4},
+        "LAMPS (MARS)": {"color": "#D7191C",   "marker": "o", "lw": 2.4, "zorder": 5},
+        "LAMPS (SpAM)": {"color": "#2C7BB6",   "marker": "D", "lw": 2.4, "zorder": 4},
         "Knockoffs_fdr01":  {"color": "#7AA6DC",   "marker": "x", "lw": 1.6},
         "Knockoffs_fdr02":  {"color": "#9CCB86",   "marker": "<", "lw": 1.6},
         "Knockoffs_fdr03":  {"color": "#DBA159",   "marker": ">", "lw": 1.6},
-        "spAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
+        "SpAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
         "MARS":             {"color": "#888888",   "marker": "*", "lw": 1.6},
     }
 
@@ -152,30 +160,30 @@ def mean_se(dct):
 # Build method_to_data depending on basemodel
 if basemodel == "marsbase":
     method_to_data = {
-        "AdaMP (marsbase)": mean_se(rate_AdaMP),
+        "LAMPS (MARS)": mean_se(rate_AdaMP),
         "Knockoffs_fdr01":  mean_se(rate_KF01),
         "Knockoffs_fdr02":  mean_se(rate_KF02),
         "Knockoffs_fdr03":  mean_se(rate_KF03),
-        "spAM":             mean_se(rate_SPAM),
+        "SpAM":             mean_se(rate_SPAM),
         "MARS":             mean_se(rate_MARS),
     }
 elif basemodel == "spambase":
     method_to_data = {
-        "AdaMP (spambase)": mean_se(rate_AdaMP),
+        "LAMPS (SpAM)": mean_se(rate_AdaMP),
         "Knockoffs_fdr01":  mean_se(rate_KF01),
         "Knockoffs_fdr02":  mean_se(rate_KF02),
         "Knockoffs_fdr03":  mean_se(rate_KF03),
-        "spAM":             mean_se(rate_SPAM),
+        "SpAM":             mean_se(rate_SPAM),
         "MARS":             mean_se(rate_MARS),
     }
 else:  # both
     method_to_data = {
-        "AdaMP (marsbase)": mean_se(rate_AdaMP_mars),
-        "AdaMP (spambase)": mean_se(rate_AdaMP_spam),
+        "LAMPS (MARS)": mean_se(rate_AdaMP_mars),
+        "LAMPS (SpAM)": mean_se(rate_AdaMP_spam),
         "Knockoffs_fdr01":  mean_se(rate_KF01),
         "Knockoffs_fdr02":  mean_se(rate_KF02),
         "Knockoffs_fdr03":  mean_se(rate_KF03),
-        "spAM":             mean_se(rate_SPAM),
+        "SpAM":             mean_se(rate_SPAM),
         "MARS":             mean_se(rate_MARS),
     }
 
@@ -184,6 +192,7 @@ fig, ax = plt.subplots(figsize=(7.8, 4.6), constrained_layout=False)
 
 for name, (means, ses) in method_to_data.items():
     style = method_styles[name]
+    display_name = legend_name_map.get(name, name)
     ax.errorbar(
         snr_list, means, yerr=ses, fmt=style["marker"] + "-",
         linewidth=style.get("lw", 1.6),
@@ -192,7 +201,7 @@ for name, (means, ses) in method_to_data.items():
         capsize=3,
         elinewidth=1.0,
         zorder=style.get("zorder", 3),
-        label=name
+        label=display_name
     )
 
 ax.set_xlabel("Interaction SNR")
@@ -203,7 +212,7 @@ for spine in ["top", "right"]:
     ax.spines[spine].set_visible(False)
 
 ax.text(
-    0.02, 0.95, rf"$\rho = {rho}$", transform=ax.transAxes,
+    0.03, 1.02, rf"$\rho = {rho}$", transform=ax.transAxes,
     ha="left", va="top", fontsize=11,
     bbox=dict(boxstyle="round,pad=0.2", facecolor="white", edgecolor="#DDDDDD", alpha=0.9),
 )

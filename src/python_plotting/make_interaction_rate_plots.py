@@ -4,8 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-oracle = int(os.environ.get("ADAMP_ORACLE", "0")) # oracle must be 0
-permute = int(os.environ.get("ADAMP_PERMUTE", "1"))
+oracle = 0 # oracle must be 0
+permute = 0
 # "marsbase", "spambase", or "both"
 basemodel = "both"  # change to "spambase" or "marsbase" as needed
 
@@ -23,10 +23,14 @@ snr_list = [4, 6, 8, 10]
 oracle_str  = "oracle"    if oracle == 1  else "nonoracle"
 permute_str = "permute"   if permute == 1 else "nonpermute"
 
-title_label = (
-    f"Nonlinear Nonadditive — Rate of Selecting Both Interaction Features "
-    f"vs. Interaction SNR {permute_str}"
-)
+# title_label = (
+#     f"Nonlinear Nonadditive — Rate of Selecting Both Interaction Features "
+#     f"vs. Interaction SNR {permute_str}"
+# )
+if permute == 0:
+    title_label = "Interaction Model: Correlated Setting 1"
+else:
+    title_label = "Interaction Model: Correlated Setting 2"
 
 snr_list        = [4, 6, 8, 10]
 num_simus       = 30
@@ -46,45 +50,51 @@ with open(
 # Matplotlib settings
 # ----------------------------------------------------------
 plt.rcParams.update({
-    "font.size": 11,
+    "font.size": 12,
     "axes.titlesize": 12,
     "axes.labelsize": 12,
-    "legend.fontsize": 10,
+    "legend.fontsize": 12,
     "xtick.labelsize": 11,
     "ytick.labelsize": 11,
     "figure.dpi": 120,
     "savefig.dpi": 300
 })
 
+legend_name_map = {
+        "Knockoffs_fdr01": r"Knockoffs ($\alpha=0.1$)",
+        "Knockoffs_fdr02": r"Knockoffs ($\alpha=0.2$)",
+        "Knockoffs_fdr03": r"Knockoffs ($\alpha=0.3$)",
+}
+
 # ----------------------------------------------------------
 # Method styles (AdaMP highlighted)
 # ----------------------------------------------------------
 if basemodel == "marsbase":
     method_styles = {
-        "AdaMP (marsbase)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
+        "LAMPS (MARS)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
         "Knockoffs_fdr01":  {"color": "#7AA6DC",   "marker": "x", "lw": 1.6},
         "Knockoffs_fdr02":  {"color": "#9CCB86",   "marker": "<", "lw": 1.6},
         "Knockoffs_fdr03":  {"color": "#DBA159",   "marker": ">", "lw": 1.6},
-        "spAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
+        "SpAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
         "MARS":             {"color": "#888888",   "marker": "*", "lw": 1.6},
     }
 elif basemodel == "spambase":
     method_styles = {
-        "AdaMP (spambase)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
+        "LAMPS (SpAM)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
         "Knockoffs_fdr01":  {"color": "#7AA6DC",   "marker": "x", "lw": 1.6},
         "Knockoffs_fdr02":  {"color": "#9CCB86",   "marker": "<", "lw": 1.6},
         "Knockoffs_fdr03":  {"color": "#DBA159",   "marker": ">", "lw": 1.6},
-        "spAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
+        "SpAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
         "MARS":             {"color": "#888888",   "marker": "*", "lw": 1.6},
     }
 else:  # basemodel == "both"
     method_styles = {
-        "AdaMP (marsbase)": {"color": "#D7191C",   "marker": "o", "lw": 2.4, "zorder": 5},
-        "AdaMP (spambase)": {"color": "#2C7BB6",   "marker": "D", "lw": 2.4, "zorder": 4},
+        "LAMPS (MARS)": {"color": "#D7191C",   "marker": "o", "lw": 2.4, "zorder": 5},
+        "LAMPS (SpAM)": {"color": "#2C7BB6",   "marker": "D", "lw": 2.4, "zorder": 4},
         "Knockoffs_fdr01":  {"color": "#7AA6DC",   "marker": "x", "lw": 1.6},
         "Knockoffs_fdr02":  {"color": "#9CCB86",   "marker": "<", "lw": 1.6},
         "Knockoffs_fdr03":  {"color": "#DBA159",   "marker": ">", "lw": 1.6},
-        "spAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
+        "SpAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
         "MARS":             {"color": "#888888",   "marker": "*", "lw": 1.6},
     }
 
@@ -176,30 +186,30 @@ for j, rho in enumerate(corr_list):
     # ------------------------------------------------------
     if basemodel == "marsbase":
         method_to_data = {
-            "AdaMP (marsbase)": mean_se(rate_AdaMP),
+            "LAMPS (MARS)": mean_se(rate_AdaMP),
             "Knockoffs_fdr01":  mean_se(rate_KF01),
             "Knockoffs_fdr02":  mean_se(rate_KF02),
             "Knockoffs_fdr03":  mean_se(rate_KF03),
-            "spAM":             mean_se(rate_SPAM),
+            "SpAM":             mean_se(rate_SPAM),
             "MARS":             mean_se(rate_MARS),
         }
     elif basemodel == "spambase":
         method_to_data = {
-            "AdaMP (spambase)": mean_se(rate_AdaMP),
+            "LAMPS (SpAM)": mean_se(rate_AdaMP),
             "Knockoffs_fdr01":  mean_se(rate_KF01),
             "Knockoffs_fdr02":  mean_se(rate_KF02),
             "Knockoffs_fdr03":  mean_se(rate_KF03),
-            "spAM":             mean_se(rate_SPAM),
+            "SpAM":             mean_se(rate_SPAM),
             "MARS":             mean_se(rate_MARS),
         }
     else:  # basemodel == "both"
         method_to_data = {
-            "AdaMP (marsbase)": mean_se(rate_AdaMP_mars),
-            "AdaMP (spambase)": mean_se(rate_AdaMP_spam),
+            "LAMPS (MARS)": mean_se(rate_AdaMP_mars),
+            "LAMPS (SpAM)": mean_se(rate_AdaMP_spam),
             "Knockoffs_fdr01":  mean_se(rate_KF01),
             "Knockoffs_fdr02":  mean_se(rate_KF02),
             "Knockoffs_fdr03":  mean_se(rate_KF03),
-            "spAM":             mean_se(rate_SPAM),
+            "SpAM":             mean_se(rate_SPAM),
             "MARS":             mean_se(rate_MARS),
         }
 
@@ -210,17 +220,31 @@ for j, rho in enumerate(corr_list):
     handles = []
     labels  = []
 
+    # for name, (means, ses) in method_to_data.items():
+    #     style = method_styles[name]
+    #     h = ax.errorbar(
+    #         snr_list, means, yerr=ses, fmt=style["marker"] + "-",  # point + line
+    #         linewidth=style.get("lw", 1.6), markersize=6,
+    #         color=style["color"], capsize=3, elinewidth=1.0,
+    #         zorder=style.get("zorder", 3), label=name
+    #     )
+    #     if j == 0:
+    #         handles.append(h)
+    #         labels.append(name)
     for name, (means, ses) in method_to_data.items():
         style = method_styles[name]
+
+        display_name = legend_name_map.get(name, name)
+
         h = ax.errorbar(
-            snr_list, means, yerr=ses, fmt=style["marker"] + "-",  # point + line
+            snr_list, means, yerr=ses, fmt=style["marker"] + "-",
             linewidth=style.get("lw", 1.6), markersize=6,
             color=style["color"], capsize=3, elinewidth=1.0,
-            zorder=style.get("zorder", 3), label=name
+            zorder=style.get("zorder", 3), label=display_name
         )
         if j == 0:
             handles.append(h)
-            labels.append(name)
+            labels.append(display_name)
 
     ax.set_xlabel("Interaction SNR")
     if j == 0:
@@ -230,7 +254,7 @@ for j, rho in enumerate(corr_list):
         ax.spines[spine].set_visible(False)
 
     ax.text(
-        0.02, 0.95, rf"$\rho = {rho}$", transform=ax.transAxes,
+        0.03, 1.02, rf"$\rho = {rho}$", transform=ax.transAxes,
         ha="left", va="top", fontsize=11,
         bbox=dict(
             boxstyle="round,pad=0.2",
@@ -244,7 +268,9 @@ for j, rho in enumerate(corr_list):
         legend_handles, legend_labels = handles, labels
 
 # Shared suptitle & legend
-fig.suptitle(title_label, y=1.03)
+fig.suptitle(title_label, y=0.97)
+# fig.suptitle(title_label, y=0.77, fontsize=14)
+
 # if legend_handles is not None:
 #     fig.legend(legend_handles, legend_labels, loc="lower center", ncol=4, frameon=False)
 
@@ -262,7 +288,7 @@ if legend_handles is not None:
         loc="lower center",
         ncol=4,
         frameon=False,
-        bbox_to_anchor=(0.5, 0.02)  # <-- key: move legend down inside reserved margin
+        # bbox_to_anchor=(0.5, 0.02)  # <-- key: move legend down inside reserved margin
     )
 
 # ---- Reserve enough space at bottom, matching your second plot ----
@@ -272,9 +298,10 @@ outdir = "results/nonlinear/nonadditive"
 figpath = os.path.join(outdir, f"both_interaction_rate_{permute_str}_{basemodel}.png")
 
 # ---- Save: ensure legend is included and no squeezing happens ----
-if legend is not None:
-    fig.savefig(figpath, dpi=300, bbox_inches="tight", bbox_extra_artists=(legend,))
-else:
-    fig.savefig(figpath, dpi=300, bbox_inches="tight")
+fig.savefig(figpath, dpi=300, bbox_inches="tight")
+# if legend is not None:
+#     fig.savefig(figpath, dpi=300, bbox_inches="tight", bbox_extra_artists=(legend,))
+# else:
+#     fig.savefig(figpath, dpi=300, bbox_inches="tight")
 
 plt.show()

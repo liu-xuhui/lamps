@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 
 # ---------------- user-configurable inputs ----------------
 eval_metd    = "f1_score"  # "f1_score" | "precision" | "recall"
-oracle       = int(os.environ.get("ADAMP_ORACLE", "0"))
-permute      = int(os.environ.get("ADAMP_PERMUTE", "0"))
+oracle       = 0
+permute      = 0
 basemodel    = "both"  # "marsbase", "spambase", or "both"
 
 corr_list    = [0.5]       # keep ONE rho if you want ONE plot
@@ -25,11 +25,12 @@ y_label = f"Feature-Selection {metric_name_map.get(eval_metd, eval_metd.title())
 oracle_str  = "oracle"    if oracle  else "nonoracle"
 permute_str = "permute"   if permute else "nonpermute"
 
-title_label = (
-    f"Nonlinear Additive — Feature-Selection Hyperparam Tuning "
-    f"{metric_name_map.get(eval_metd, eval_metd.title())} vs. SNR "
-    f"{oracle_str} {permute_str}"
-)
+# title_label = (
+#     f"Nonlinear Additive — Feature-Selection Hyperparam Tuning "
+#     f"{metric_name_map.get(eval_metd, eval_metd.title())} vs. SNR "
+#     f"{oracle_str} {permute_str}"
+# )
+title_label = "Nonlinear Additive Model Data-driven tuning"
 
 # Load result dict
 with open(f"results/hyperparam_tuning/nonlinear_additive_oracle{oracle}_permute{permute}_result_dict.pkl", "rb") as f:
@@ -76,55 +77,61 @@ rho = corr_list[0]
 com_method_result_dict = result_dict[rho]
 
 # Choose method styles based on oracle/nonoracle + basemodel
+legend_name_map = {}
 if oracle:
     # ORACLE BRANCH
     if basemodel == "marsbase":
         method_styles = {
-            "AdaMP (marsbase)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
+            "LAMPS (MARS)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
             "HSIC Lasso":       {"color": "#596780",   "marker": "s", "lw": 1.6},
-            "spAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
+            "SpAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
         }
     elif basemodel == "spambase":
         method_styles = {
-            "AdaMP (spambase)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
+            "LAMPS (SpAM)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
             "HSIC Lasso":       {"color": "#596780",   "marker": "s", "lw": 1.6},
-            "spAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
+            "SpAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
         }
     else:  # both
         method_styles = {
-            "AdaMP (marsbase)":  {"color": "#D7191C",  "marker": "o", "lw": 2.4, "zorder": 5},
-            "AdaMP (spambase)":  {"color": "#2C7BB6",  "marker": "D", "lw": 2.4, "zorder": 4},
+            "LAMPS (MARS)":  {"color": "#D7191C",  "marker": "o", "lw": 2.4, "zorder": 5},
+            "LAMPS (SpAM)":  {"color": "#2C7BB6",  "marker": "D", "lw": 2.4, "zorder": 4},
             "HSIC Lasso":        {"color": "#596780",  "marker": "s", "lw": 1.6},
-            "spAM":              {"color": "#B57BA6",  "marker": "v", "lw": 1.6},
+            "SpAM":              {"color": "#B57BA6",  "marker": "v", "lw": 1.6},
         }
 else:
     # NON-ORACLE BRANCH
+    legend_name_map = {
+        "Knockoffs_fdr01": r"Knockoffs ($\alpha=0.1$)",
+        "Knockoffs_fdr02": r"Knockoffs ($\alpha=0.2$)",
+        "Knockoffs_fdr03": r"Knockoffs ($\alpha=0.3$)",
+    }
     if basemodel == "marsbase":
         method_styles = {
-            "AdaMP (marsbase)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
+            "LAMPS (MARS)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
             "Knockoffs_fdr01":  {"color": "#7AA6DC",   "marker": "x", "lw": 1.6},
             "Knockoffs_fdr02":  {"color": "#9CCB86",   "marker": "<", "lw": 1.6},
             "Knockoffs_fdr03":  {"color": "#DBA159",   "marker": ">", "lw": 1.6},
-            "spAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
+            "SpAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
             "MARS":             {"color": "#888888",   "marker": "*", "lw": 1.6},
         }
     elif basemodel == "spambase":
         method_styles = {
-            "AdaMP (spambase)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
+            "LAMPS (SpAM)": {"color": "red",       "marker": "o", "lw": 2.2, "zorder": 4},
             "Knockoffs_fdr01":  {"color": "#7AA6DC",   "marker": "x", "lw": 1.6},
             "Knockoffs_fdr02":  {"color": "#9CCB86",   "marker": "<", "lw": 1.6},
             "Knockoffs_fdr03":  {"color": "#DBA159",   "marker": ">", "lw": 1.6},
-            "spAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
+            "SpAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
             "MARS":             {"color": "#888888",   "marker": "*", "lw": 1.6},
         }
     else:  # both
         method_styles = {
-            "AdaMP (marsbase)": {"color": "#D7191C",   "marker": "o", "lw": 2.4, "zorder": 5},
-            "AdaMP (spambase)": {"color": "#2C7BB6",   "marker": "D", "lw": 2.4, "zorder": 4},
+            "LAMPS (MARS)": {"color": "#D7191C",   "marker": "o", "lw": 2.4, "zorder": 5},
+            "LAMPS (SpAM)": {"color": "#2C7BB6",   "marker": "D", "lw": 2.4, "zorder": 4},
             "Knockoffs_fdr01":  {"color": "#7AA6DC",   "marker": "x", "lw": 1.6},
             "Knockoffs_fdr02":  {"color": "#9CCB86",   "marker": "<", "lw": 1.6},
             "Knockoffs_fdr03":  {"color": "#DBA159",   "marker": ">", "lw": 1.6},
-            "spAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
+            "SpAM":             {"color": "#B57BA6",   "marker": "v", "lw": 1.6},
             "MARS":             {"color": "#888888",   "marker": "*", "lw": 1.6},
         }
 
@@ -215,50 +222,50 @@ def mean_se(dct):
 if oracle:
     if basemodel == "marsbase":
         method_to_data = {
-            "AdaMP (marsbase)": mean_se(met_AdaMP),
+            "LAMPS (MARS)": mean_se(met_AdaMP),
             "HSIC Lasso":       mean_se(met_HSIC),
-            "spAM":             mean_se(met_SPAM),
+            "SpAM":             mean_se(met_SPAM),
         }
     elif basemodel == "spambase":
         method_to_data = {
-            "AdaMP (spambase)": mean_se(met_AdaMP),
+            "LAMPS (SpAM)": mean_se(met_AdaMP),
             "HSIC Lasso":       mean_se(met_HSIC),
-            "spAM":             mean_se(met_SPAM),
+            "SpAM":             mean_se(met_SPAM),
         }
     else:  # both
         method_to_data = {
-            "AdaMP (marsbase)":  mean_se(met_AdaMP_mars),
-            "AdaMP (spambase)":  mean_se(met_AdaMP_spam),
+            "LAMPS (MARS)":  mean_se(met_AdaMP_mars),
+            "LAMPS (SpAM)":  mean_se(met_AdaMP_spam),
             "HSIC Lasso":        mean_se(met_HSIC),
-            "spAM":              mean_se(met_SPAM),
+            "SpAM":              mean_se(met_SPAM),
         }
 else:
     if basemodel == "marsbase":
         method_to_data = {
-            "AdaMP (marsbase)": mean_se(met_AdaMP),
+            "LAMPS (MARS)": mean_se(met_AdaMP),
             "Knockoffs_fdr01":  mean_se(met_KF01),
             "Knockoffs_fdr02":  mean_se(met_KF02),
             "Knockoffs_fdr03":  mean_se(met_KF03),
-            "spAM":             mean_se(met_SPAM),
+            "SpAM":             mean_se(met_SPAM),
             "MARS":             mean_se(met_MARS),
         }
     elif basemodel == "spambase":
         method_to_data = {
-            "AdaMP (spambase)": mean_se(met_AdaMP),
+            "LAMPS (SpAM)": mean_se(met_AdaMP),
             "Knockoffs_fdr01":  mean_se(met_KF01),
             "Knockoffs_fdr02":  mean_se(met_KF02),
             "Knockoffs_fdr03":  mean_se(met_KF03),
-            "spAM":             mean_se(met_SPAM),
+            "SpAM":             mean_se(met_SPAM),
             "MARS":             mean_se(met_MARS),
         }
     else:  # both
         method_to_data = {
-            "AdaMP (marsbase)":  mean_se(met_AdaMP_mars),
-            "AdaMP (spambase)":  mean_se(met_AdaMP_spam),
+            "LAMPS (MARS)":  mean_se(met_AdaMP_mars),
+            "LAMPS (SpAM)":  mean_se(met_AdaMP_spam),
             "Knockoffs_fdr01":   mean_se(met_KF01),
             "Knockoffs_fdr02":   mean_se(met_KF02),
             "Knockoffs_fdr03":   mean_se(met_KF03),
-            "spAM":              mean_se(met_SPAM),
+            "SpAM":              mean_se(met_SPAM),
             "MARS":              mean_se(met_MARS),
         }
 
@@ -267,6 +274,7 @@ fig, ax = plt.subplots(figsize=(7.8, 4.6), constrained_layout=False)
 
 for name, (means, ses) in method_to_data.items():
     style = method_styles[name]
+    display_name = legend_name_map.get(name, name)
     ax.errorbar(
         snr_list, means, yerr=ses, fmt=style["marker"] + "-",
         linewidth=style.get("lw", 1.6),
@@ -275,7 +283,7 @@ for name, (means, ses) in method_to_data.items():
         capsize=3,
         elinewidth=1.0,
         zorder=style.get("zorder", 3),
-        label=name
+        label=display_name
     )
 
 ax.set_xlabel("SNR")
@@ -285,7 +293,7 @@ for spine in ["top", "right"]:
     ax.spines[spine].set_visible(False)
 
 ax.text(
-    0.02, 0.95, rf"$\rho = {rho}$", transform=ax.transAxes,
+    0.03, 1.02, rf"$\rho = {rho}$", transform=ax.transAxes,
     ha="left", va="top", fontsize=11,
     bbox=dict(boxstyle="round,pad=0.2", facecolor="white", edgecolor="#DDDDDD", alpha=0.9)
 )
@@ -308,3 +316,4 @@ os.makedirs(outdir, exist_ok=True)
 figpath = os.path.join(outdir, f"{eval_metd}_additive_{oracle_str}_{permute_str}_{basemodel}_rho{rho}.png")
 fig.savefig(figpath, bbox_inches="tight", bbox_extra_artists=(legend,))
 plt.show()
+

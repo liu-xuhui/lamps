@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
-python experiments/other/run_one_linear_new.py
+python experiments/other/run_one_linear.py
 
 if [ "$#" -eq 0 ]; then
   plot_kinds=(prob delta)

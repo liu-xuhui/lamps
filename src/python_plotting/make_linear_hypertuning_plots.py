@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 # ---------------- user-configurable inputs ----------------
 eval_metd       = "f1_score"   # "f1_score" | "precision" | "recall"
 oracle          = 1            # must be 1 (placeholder in filenames)
-permute         = int(os.environ.get("ADAMP_PERMUTE", "0"))  # 1 = permute, 0 = nonpermute
+permute         = 0            # 1 = permute, 0 = nonpermute
 basemodel       = "linear"     # only option
 
 corr_list       = [0.5]        # keep ONE rho if you want ONE plot
@@ -28,10 +28,13 @@ y_label = f"Feature-Selection {metric_name_map.get(eval_metd, eval_metd.title())
 
 oracle_str  = "oracle" if oracle else "nonoracle"   # placeholder for title/filename
 permute_str = "permute" if permute else "nonpermute"
-title_label = (
-    f"Linear Hyperparam tuning— Feature-Selection {metric_name_map.get(eval_metd, eval_metd.title())} "
-    f"vs. SNR {oracle_str} {permute_str}"
-)
+# title_label = (
+#     f"Linear Hyperparam tuning— Feature-Selection {metric_name_map.get(eval_metd, eval_metd.title())} "
+#     f"vs. SNR {oracle_str} {permute_str}"
+# )
+
+title_label = "Linear Model Data-driven tuning"
+
 
 def compute_f1_score(selected_features, total_features=500, signal_features=list(range(10))):
     selected_features = set(selected_features)
@@ -68,7 +71,7 @@ plt.rcParams.update({
 
 # Colors/markers (AdaMP highlighted)
 method_styles = {
-    "AdaMP (OLS)": {"color": "red",      "marker": "o", "lw": 2.2, "zorder": 5},
+    "LAMPS (OLS)": {"color": "red",      "marker": "o", "lw": 2.2, "zorder": 5},
     "Stability Selection":      {"color": "#596780",  "marker": "s", "lw": 1.6},
     "Lasso-eBIC":           {"color": "#7AA6DC",  "marker": "x", "lw": 1.6},
     "Lasso-CV":       {"color": "#9CCB86",  "marker": "<", "lw": 1.6},
@@ -129,7 +132,7 @@ def mean_se(dct):
     return np.array(means), np.array(ses)
 
 method_to_data = {
-    "AdaMP (OLS)": mean_se(met_AdaMP),
+    "LAMPS (OLS)": mean_se(met_AdaMP),
     "Stability Selection":      mean_se(met_Stab),
     "Lasso-eBIC":           mean_se(met_eBIC),
     "Lasso-CV":       mean_se(met_LCV),
@@ -165,7 +168,7 @@ for spine in ["top", "right"]:
 
 # annotate rho
 ax.text(
-    0.02, 0.95, rf"$\rho = {rho}$", transform=ax.transAxes,
+    0.03, 1.02, rf"$\rho = {rho}$", transform=ax.transAxes,
     ha="left", va="top", fontsize=11,
     bbox=dict(boxstyle="round,pad=0.2", facecolor="white", edgecolor="#DDDDDD", alpha=0.9)
 )
