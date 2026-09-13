@@ -11,7 +11,7 @@ from .core import (
     last_epoch_key,
     linear_regression_fit,
     predictMP_indept,
-    adamp_select,
+    lamps_select,
 )
 from .simulation_functions import (
     SimuFriedmanAdditive,
@@ -32,7 +32,7 @@ __all__ = [
     "last_epoch_key",
     "linear_regression_fit",
     "predictMP_indept",
-    "adamp_select",
+    "lamps_select",
     "SimuFriedmanAdditive",
     "SimuFriedmanNonAdditive",
     "SimuLinear",

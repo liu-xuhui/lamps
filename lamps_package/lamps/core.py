@@ -375,7 +375,7 @@ def _run_adamp(
     return res
 
 
-def adamp_select(
+def lamps_select(
     X,
     Y,
     n_ratio=0.4,

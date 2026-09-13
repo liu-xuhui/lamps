@@ -3,22 +3,22 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "adamp"
+name = "lamps-fs"
 version = "0.1.0"
-description = "Adaptive minipatch feature selection."
+description = "Model-Agnostic Feature Selection via LOCO-Guided Adaptive Minipatch Sampling."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
 authors = [
-  { name = "AdaMP authors" },
+  { name = "LAMPS authors" },
 ]
 dependencies = [
   "numpy",
 ]
 
 [tool.setuptools]
-package-dir = { "" = "adamp_package" }
+package-dir = { "" = "lamps_package" }
 
 [tool.setuptools.packages.find]
-where = ["adamp_package"]
-include = ["adamp*"]
+where = ["lamps_package"]
+include = ["lamps", "lamps.*"]

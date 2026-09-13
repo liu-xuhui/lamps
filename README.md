@@ -3,7 +3,7 @@
 This repository contains the LAMPS feature-selection implementation and the
 experiment scripts used to reproduce the paper figures.
 
-The installable Python package lives in `adamp_package/adamp` and is configured
+The installable Python package lives in `lamps_package/lamps` and is configured
 by `pyproject.toml`. The paper-reproduction code remains under `src/`,
 `experiments/`, `data/`, and `src/python_plotting/`.
 
@@ -50,12 +50,12 @@ pip install.
 
 ## Public Python Package
 
-After `pip install .`, users can call AdaMP directly:
+After `pip install .`, users can call LAMPS directly:
 
 ```python
-from adamp import adamp_select
+from lamps import lamps_select
 
-selected = adamp_select(X, y)
+selected = lamps_select(X, y)
 ```
 
 Hyperparameter tuning is available by passing a Python list for any of
@@ -64,7 +64,7 @@ combinations, choose the run with the lowest final-epoch leave-one-out error,
 show tuning progress, and print the best hyperparameters.
 
 ```python
-selected = adamp_select(
+selected = lamps_select(
     X,
     y,
     n_ratio=[0.3, 0.4, 0.5],
@@ -77,7 +77,7 @@ The same list interface works for model functions. Each function should use
 the signature `fit_func(X_train, y_train, X_predict)`:
 
 ```python
-selected = adamp_select(
+selected = lamps_select(
     X,
     y,
     fit_func=[linear_fit, ridge_fit],
@@ -88,7 +88,7 @@ To inspect the result dictionary from the best hyperparameter setting, set
 `return_complete_info=True`:
 
 ```python
-selected, res = adamp_select(
+selected, res = lamps_select(
     X,
     y,
     n_ratio=[0.4, 0.5],
