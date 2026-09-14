@@ -1,0 +1,10 @@
+include LICENSE
+include lamps_package/README.md
+exclude PUBLISHING.md
+prune data
+prune experiments
+prune results
+prune src
+prune env
+prune .github
+global-exclude __pycache__ *.py[cod] .DS_Store

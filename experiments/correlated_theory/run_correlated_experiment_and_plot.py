@@ -27,7 +27,7 @@ os.environ.setdefault("MPLCONFIGDIR", "/tmp/correlated_experiment_matplotlib")
 
 import matplotlib.pyplot as plt
 import numpy as np
-from lamps_package.lamps import lamps_select
+from lamps import lamps_select
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeRegressor
@@ -150,7 +150,7 @@ def run_experiments(args):
             corr=corr,
             standardize_y=args.standardize_y,
         )
-        selected, results = adamp_select(
+        selected, results = lamps_select(
             X,
             Y,
             fit_func=fit_func,

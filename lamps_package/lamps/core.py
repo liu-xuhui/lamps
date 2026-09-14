@@ -1,4 +1,4 @@
-"""Core AdaMP feature-selection implementation."""
+"""Core LAMPS feature-selection implementation."""
 
 from __future__ import annotations
 
@@ -389,7 +389,7 @@ def lamps_select(
     show_progress=True,
     seed=123,
 ):
-    """Run AdaMP and return selected feature indices by default.
+    """Run LAMPS and return selected feature indices by default.
 
     Parameters
     ----------
@@ -400,7 +400,7 @@ def lamps_select(
         omitted, a dependency-free least-squares linear regression is used.
         May also be a list of callables for hyperparameter tuning.
     n_ratio, m_ratio, delta
-        Scalars for a single AdaMP run, or lists for grid-search tuning.
+        Scalars for a single LAMPS run, or lists for grid-search tuning.
     return_complete_info
         If False, return selected feature indices. If True, return
         ``(selected_features, res)``. When any of ``n_ratio``, ``m_ratio``,

@@ -7,6 +7,7 @@ venv/
 # ENV/
 *.egg-info/
 build/
+dist/
 
 # Do NOT ignore our env/ folder that contains requirements & setup scripts
 !env/requirements.txt
@@ -67,3 +68,6 @@ data/rosmap_methy/*
 
 !src/python/adamp/third_party/
 !src/python/adamp/third_party/stability_selection/**
+
+# Local publishing instructions
+/PUBLISHING.md

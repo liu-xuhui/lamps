@@ -1,24 +1,37 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "lamps-fs"
 version = "0.1.0"
 description = "Model-Agnostic Feature Selection via LOCO-Guided Adaptive Minipatch Sampling."
-readme = "README.md"
+readme = "lamps_package/README.md"
 requires-python = ">=3.10"
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
   { name = "LAMPS authors" },
 ]
 dependencies = [
-  "numpy",
+  "numpy>=1.25",
 ]
+keywords = ["feature-selection", "minipatch", "LOCO", "statistics"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Scientific/Engineering",
+]
+
+[project.urls]
+Repository = "https://github.com/liu-xuhui/lamps"
+Issues = "https://github.com/liu-xuhui/lamps/issues"
 
 [tool.setuptools]
 package-dir = { "" = "lamps_package" }
+include-package-data = false
 
 [tool.setuptools.packages.find]
 where = ["lamps_package"]
 include = ["lamps", "lamps.*"]
+namespaces = false

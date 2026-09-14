@@ -7,6 +7,19 @@ The installable Python package lives in `lamps_package/lamps` and is configured
 by `pyproject.toml`. The paper-reproduction code remains under `src/`,
 `experiments/`, `data/`, and `src/python_plotting/`.
 
+## Installing LAMPS
+
+The PyPI distribution name is **lamps-fs**; the Python import name is **lamps**.
+After the first PyPI release, users can install without cloning this repository:
+
+```bash
+python -m pip install lamps-fs
+```
+
+Requires Python 3.10 or newer and NumPy 1.25 or newer. Until that release,
+use the local installation instructions below. See
+[the package guide](lamps_package/README.md) for a runnable example.
+
 ## Environment Setup
 
 Create and activate a virtual environment:
@@ -59,7 +72,7 @@ selected = lamps_select(X, y)
 ```
 
 Hyperparameter tuning is available by passing a Python list for any of
-`n_ratio`, `m_ratio`, `fit_func`, or `delta`. AdaMP will grid-search all
+`n_ratio`, `m_ratio`, `fit_func`, or `delta`. LAMPS will grid-search all
 combinations, choose the run with the lowest final-epoch leave-one-out error,
 show tuning progress, and print the best hyperparameters.
 
@@ -220,6 +233,10 @@ Directly running individual scripts without these variables preserves their
 default values.
 
 ## Notes
+
+- The LAMPS package is licensed under the [MIT license](LICENSE).
+- Vendored third-party code retains its own license terms and is not included
+  in the `lamps-fs` distribution.
 
 - The shell scripts are intentionally long-running; many run full simulation
   grids across multiple methods.

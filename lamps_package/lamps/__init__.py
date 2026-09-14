@@ -1,4 +1,4 @@
-"""AdaMP feature-selection package."""
+"""LAMPS feature selection, distributed on PyPI as lamps-fs."""
 
 from .core import (
     MPRegFeatureScore_indept,
