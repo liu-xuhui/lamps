@@ -18,7 +18,7 @@ number_signals = 10
 M              = 50
 # ----------------------------------------------------------
 
-y_label = "Both-Interaction Selection (%)"
+y_label = "Simultaneous Selection Rate"
 
 oracle_str  = "oracle"    if oracle == 1  else "nonoracle"
 permute_str = "permute"   if permute == 1 else "nonpermute"

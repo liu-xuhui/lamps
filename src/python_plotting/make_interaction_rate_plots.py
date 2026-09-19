@@ -17,7 +17,7 @@ metric_name_map = {
     "recall": "Recall"
 }
 
-y_label = "Both-Interaction Selection (%)"
+y_label = "Simultaneous Selection Rate"
 snr_list = [4, 6, 8, 10]
 
 oracle_str  = "oracle"    if oracle == 1  else "nonoracle"
