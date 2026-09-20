@@ -59,7 +59,11 @@ Rscript env/R_packages.R
 
 The vendored `stability_selection` code remains under
 `src/python/adamp/third_party/stability_selection/` and does not need a separate
-pip install.
+pip install. It is a copy of
+[scikit-learn-contrib/stability-selection](https://github.com/scikit-learn-contrib/stability-selection),
+which is not published on PyPI; see
+[its README](src/python/adamp/third_party/stability_selection/README.md) for the
+retrieval date and the two scikit-learn compatibility patches applied to it.
 
 ## Public Python Package
 
@@ -238,8 +242,12 @@ default values.
 ## Notes
 
 - The LAMPS package is licensed under the [MIT license](LICENSE).
-- Vendored third-party code retains its own license terms and is not included
-  in the `lamps-fs` distribution.
+- The vendored `stability_selection` code under
+  `src/python/adamp/third_party/stability_selection/` is licensed under
+  BSD-3-Clause, Copyright (c) 2018 Thomas Huijskens. Its license text is
+  retained alongside the code in
+  [that directory](src/python/adamp/third_party/stability_selection/LICENSE),
+  and it is not included in the `lamps-fs` distribution.
 
 - The shell scripts are intentionally long-running; many run full simulation
   grids across multiple methods.
