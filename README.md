@@ -115,6 +115,9 @@ paper-reproduction scripts.
 
 ## Reproducing Paper Results
 
+Before running the simulation experiments, run the Python scripts under
+`data/simulation/` to generate the required simulation data.
+
 Run commands from the repository root after activating the environment. The
 shell scripts below generate data, run methods, summarize temporary outputs, and
 create the corresponding publication figures.
