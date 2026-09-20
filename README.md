@@ -10,14 +10,13 @@ by `pyproject.toml`. The paper-reproduction code remains under `src/`,
 ## Installing LAMPS
 
 The PyPI distribution name is **lamps-fs**; the Python import name is **lamps**.
-After the first PyPI release, users can install without cloning this repository:
+Users can install the package without cloning this repository:
 
 ```bash
 python -m pip install lamps-fs
 ```
 
-Requires Python 3.10 or newer and NumPy 1.25 or newer. Until that release,
-use the local installation instructions below. See
+Requires Python 3.10 or newer and NumPy 1.25 or newer. See
 [the package guide](lamps_package/README.md) for a runnable example.
 
 ## Environment Setup

@@ -7,7 +7,6 @@ custom prediction functions and grid-search hyperparameter tuning.
 
 ## Installation
 
-After the first PyPI release:
 
 ```bash
 python -m pip install lamps-fs
@@ -15,10 +14,7 @@ python -m pip install lamps-fs
 
 The distribution is named `lamps-fs`; import it as `lamps`.
 Requires Python >=3.10 and NumPy >=1.25. NumPy is the only runtime dependency.
-No R installation or experiment datasets are needed.
 
-Before publication, developers can run `python -m pip install .` from the
-[repository](https://github.com/liu-xuhui/lamps) root.
 
 ## Quick start
 
@@ -30,8 +26,8 @@ rng = np.random.default_rng(100)
 X = rng.normal(size=(80, 20))
 y = 4 * X[:, 0] - 3 * X[:, 1] + rng.normal(size=80)
 
-# A small demonstration budget; omit K and max_iter to use the defaults.
-selected = lamps_select(X, y, K=300, max_iter=2, show_progress=False)
+# Uses the defaults: K is chosen automatically, with up to 5 epochs.
+selected = lamps_select(X, y, show_progress=True)
 print(selected)  # Zero-based column indices into X.
 ```
 
@@ -50,11 +46,8 @@ leave-one-out error and prints its hyperparameters.
 selected, results = lamps_select(
     X, y,
     n_ratio=[0.3, 0.4],
-    delta=[0.7, 0.8],
-    K=300,
-    max_iter=2,
     return_complete_info=True,
-    show_progress=False,
+    show_progress=True,
 )
 ```
 
