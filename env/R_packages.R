@@ -5,7 +5,8 @@ required_pkgs <- c(
   "stringr",
   "SAM",
   "future",
-  "future.apply"
+  "future.apply",
+  "hdi"
 )
 
 missing <- setdiff(required_pkgs, rownames(installed.packages()))

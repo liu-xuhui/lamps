@@ -117,6 +117,87 @@ selected, res = lamps_select(
 The public package is intentionally minimal. It is separate from the heavier
 paper-reproduction scripts.
 
+## Data Availability
+
+The `data/` directory is not tracked by Git. Simulation data is generated
+locally by the scripts in this repository, while the two case-study data sets
+must be obtained separately as described below. All paths are relative to the
+repository root.
+
+### Simulation data
+
+No download is needed. The generators under `data/simulation/` write the
+required CSV files into `data/simulation/`:
+
+```bash
+python data/simulation/generate_linear_data.py
+python data/simulation/generate_nonlinear_additive_data.py
+python data/simulation/generate_nonlinear_nonadditive_data.py
+```
+
+
+### Riboflavin data
+
+The riboflavin data of Dezeure et al. (2015) (`N = 71` observations,
+`M = 4,088` covariates) is distributed with the
+[`hdi`](https://cran.r-project.org/package=hdi) R package. `hdi` is installed by
+`Rscript env/R_packages.R`.
+
+`experiments/riboflavin/run_riboflavin_experiment.py` expects two CSV files,
+each with the observation identifiers in the first column:
+
+```text
+data/riboflavin/riboflavin_X.csv    71 rows, 1 index column + 4,088 covariates
+data/riboflavin/riboflavin_y.csv    71 rows, 1 index column + 1 response column
+```
+
+Export them from R, running from the repository root:
+
+```r
+library(hdi)
+data(riboflavin)
+
+dir.create(file.path("data", "riboflavin"), recursive = TRUE, showWarnings = FALSE)
+write.csv(as.matrix(riboflavin$x), file.path("data", "riboflavin", "riboflavin_X.csv"))
+write.csv(data.frame(y = riboflavin$y), file.path("data", "riboflavin", "riboflavin_y.csv"))
+```
+
+The default `row.names = TRUE` of `write.csv` produces the leading index column
+that the Python script reads with `index_col=0`.
+
+### ROSMAP data
+
+The ROSMAP data used in the case study are **not** redistributed with this
+repository. They are available from the Rush Alzheimer's Disease Center (RADC,
+<https://www.radc.rush.edu/>). Access is subject to RADC's data access and Data
+Use Agreement requirements. Obtain the data directly from RADC before running
+the ROSMAP experiment.
+
+The analysis uses a preprocessed matrix of `N = 507` observations and `M = 200`
+gene-expression covariates, retained by high-variance screening, with the global
+cognition score as the response. Place it at:
+
+```text
+data/rosmap/rosmap_200.csv
+```
+
+`experiments/rosmap/generate_train_test_data.R` reads this file by column
+position, so the column order matters:
+
+| Column | Contents |
+|---|---|
+| 1 | observation index (dropped) |
+| 2 … 201 | the 200 gene-expression covariates |
+| 202 | unused column (dropped) |
+| 203 | response: global cognition score |
+
+That is 203 columns in total. Column headers are preserved as read
+(`check.names = FALSE`); the covariate headers in columns 2–201 are used as the
+gene names in the selection-frequency table produced by
+`experiments/rosmap/create_frequency_table.py`, so keep the original gene
+identifiers there.
+
+
 ## Reproducing Paper Results
 
 Before running the simulation experiments, run the Python scripts under
@@ -211,6 +292,10 @@ To generate only one plot kind:
 
 ### ROSMAP
 
+Requires `data/rosmap/rosmap_200.csv`, obtained from RADC under their Data Use
+Agreement; see [ROSMAP data](#rosmap-data) for the access route and the expected
+file layout.
+
 ROSMAP preprocessing, methods, plots, and frequency table:
 
 ```bash
@@ -218,6 +303,10 @@ ROSMAP preprocessing, methods, plots, and frequency table:
 ```
 
 ### Riboflavin
+
+Requires `data/riboflavin/riboflavin_X.csv` and `riboflavin_y.csv`, exported
+from the `hdi` R package; see [Riboflavin data](#riboflavin-data) for the export
+snippet.
 
 No shell wrapper is needed:
 
