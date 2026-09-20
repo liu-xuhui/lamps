@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lamps-fs"
-version = "0.1.0"
+version = "0.1.1"
 description = "Model-Agnostic Feature Selection via LOCO-Guided Adaptive Minipatch Sampling."
 readme = "lamps_package/README.md"
 requires-python = ">=3.10"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [
-  { name = "LAMPS authors" },
+  { name = "Xuhui Liu", email = "xul9527@gmail.com" },
 ]
 dependencies = [
   "numpy>=1.25",

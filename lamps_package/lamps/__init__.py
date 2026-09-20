@@ -40,4 +40,4 @@ __all__ = [
     "SimuLinear_sparsity",
 ]
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
