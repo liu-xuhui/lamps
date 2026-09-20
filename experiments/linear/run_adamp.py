@@ -14,7 +14,6 @@ sys.path.insert(0, str(ROOT / "src" / "python"))
 from adamp.fit_functions import linear_reg
 from adamp.adamp_main import *
 from adamp.simulation_functions import SimuLinear
-from adamp.simulation_functions import SimuLinear_old
 import pandas as pd
 
 

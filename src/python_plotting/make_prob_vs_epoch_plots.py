@@ -2,7 +2,6 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 
-# TODO: Add corr as user input setting
 
 # User input
 corr = 0.9

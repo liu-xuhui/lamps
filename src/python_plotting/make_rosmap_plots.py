@@ -32,17 +32,14 @@ def _read_mse_csv(path: str, method_name: str) -> pd.DataFrame:
     return df
 
 def main():
-    # Working directory (repo root): C:\Users\95815\Desktop\research\adamp
-    repo_root = r"/home/xul9527/adamp_experiment"
-
     # Input CSVs
-    adamp_path = os.path.join(repo_root, "results", "rosmap", "test_mse_adamp_mr.csv")
-    hsic_path  = os.path.join(repo_root, "results", "rosmap", "test_mse_hsic.csv")
-    lasso_path = os.path.join(repo_root, "results", "rosmap", "test_mse_lasso.csv")
-    spam_path = os.path.join(repo_root, "results", "rosmap", "test_mse_spam.csv")
+    adamp_path = os.path.join("results", "rosmap", "test_mse_adamp_mr.csv")
+    hsic_path  = os.path.join("results", "rosmap", "test_mse_hsic.csv")
+    lasso_path = os.path.join("results", "rosmap", "test_mse_lasso.csv")
+    spam_path = os.path.join("results", "rosmap", "test_mse_spam.csv")
 
     # Output
-    outdir = os.path.join(repo_root, "results", "rosmap")
+    outdir = os.path.join("results", "rosmap")
     os.makedirs(outdir, exist_ok=True)
     outpath = os.path.join(outdir, "rosmap_mse_vs_K.png")
 

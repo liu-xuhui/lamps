@@ -4,6 +4,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 cd "$ROOT"
 
+# Create the output directories this pipeline writes into.
+mkdir -p data/simulation temp_results/nonlinear/nonadditive results/nonlinear/nonadditive
+
 python data/simulation/generate_nonlinear_nonadditive_data.py
 
 for permute in 0 1; do

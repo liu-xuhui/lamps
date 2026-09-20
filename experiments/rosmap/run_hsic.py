@@ -20,8 +20,7 @@ np.random.seed(118)
 n_splits = 10
 features_to_choose = 20
 
-# Working directory:
-# C:\Users\95815\Desktop\research\adamp
+# All paths are relative to the repository root.
 data_dir = os.path.join("data", "rosmap")
 out_dir  = os.path.join("results", "rosmap")
 

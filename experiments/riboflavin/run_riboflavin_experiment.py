@@ -17,6 +17,9 @@ from adamp.validation_methods import LassoStabilitySelection
 from adamp.validation_methods import compute_eBIC_select_features
 
 
+# This script has no shell wrapper; create its output directory here.
+Path("results/riboflavin").mkdir(parents=True, exist_ok=True)
+
 ribo_df = pd.read_csv("data/riboflavin/riboflavin_X.csv", index_col=0)
 X = pd.read_csv("data/riboflavin/riboflavin_X.csv", index_col=0).to_numpy()
 y = pd.read_csv("data/riboflavin/riboflavin_y.csv", index_col=0).iloc[:,0].values

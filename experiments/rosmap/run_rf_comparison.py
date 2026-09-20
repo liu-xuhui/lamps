@@ -19,7 +19,7 @@ RF_PARAMS = dict(
     n_jobs=-1,
 )
 
-# Working dir is: C:\Users\95815\Desktop\research\adamp
+# All paths are relative to the repository root.
 DATA_DIR = os.path.join("data", "rosmap")
 OUT_DIR = os.path.join("results", "rosmap")
 os.makedirs(OUT_DIR, exist_ok=True)

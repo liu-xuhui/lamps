@@ -2,7 +2,8 @@
 # print(max(50/((1-n_ratio)*m_ratio*m_ratio), 200/((1-n_ratio)*m_ratio)))
 
 # --- set project root -------------------------------------------------
-root <- "C:/Users/95815/Desktop/research/adamp"
+library(here)
+root <- here::here()
 
 # --- load AdaMP code --------------------------------------------------
 source(file.path(root, "src", "R", "adamp", "adamp_main.R"))
