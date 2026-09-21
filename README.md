@@ -166,35 +166,7 @@ that the Python script reads with `index_col=0`.
 
 ### ROSMAP data
 
-The ROSMAP data used in the case study are **not** redistributed with this
-repository. They are available from the Rush Alzheimer's Disease Center (RADC,
-<https://www.radc.rush.edu/>). Access is subject to RADC's data access and Data
-Use Agreement requirements. Obtain the data directly from RADC before running
-the ROSMAP experiment.
-
-The analysis uses a preprocessed matrix of `N = 507` observations and `M = 200`
-gene-expression covariates, retained by high-variance screening, with the global
-cognition score as the response. Place it at:
-
-```text
-data/rosmap/rosmap_200.csv
-```
-
-`experiments/rosmap/generate_train_test_data.R` reads this file by column
-position, so the column order matters:
-
-| Column | Contents |
-|---|---|
-| 1 | observation index (dropped) |
-| 2 … 201 | the 200 gene-expression covariates |
-| 202 | unused column (dropped) |
-| 203 | response: global cognition score |
-
-That is 203 columns in total. Column headers are preserved as read
-(`check.names = FALSE`); the covariate headers in columns 2–201 are used as the
-gene names in the selection-frequency table produced by
-`experiments/rosmap/create_frequency_table.py`, so keep the original gene
-identifiers there.
+The ROSMAP data used in the case study are not redistributed with this repository. They are available from the Rush Alzheimer's Disease Center (RADC, https://www.radc.rush.edu/). Access is subject to RADC's data access and Data Use Agreement requirements.
 
 
 ## Reproducing Paper Results
@@ -289,17 +261,6 @@ To generate only one plot kind:
 ./experiments/other/run_one_linear.sh delta
 ```
 
-### ROSMAP
-
-Requires `data/rosmap/rosmap_200.csv`, obtained from RADC under their Data Use
-Agreement; see [ROSMAP data](#rosmap-data) for the access route and the expected
-file layout.
-
-ROSMAP preprocessing, methods, plots, and frequency table:
-
-```bash
-./experiments/rosmap/run_rosmap_experiment.sh
-```
 
 ### Riboflavin
 
